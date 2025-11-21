@@ -147,6 +147,17 @@ func main() {
 		return checkDNS(ctx, cfg.DNS)
 	}))
 
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != "/" {
+			http.NotFound(w, r)
+			return
+		}
+		respondJSON(w, http.StatusOK, map[string]any{
+			"message":  "scoring checks ready",
+			"endpoints": []string{"/healthz", "/check/http", "/check/https", "/check/smtp", "/check/pop3", "/check/ftp", "/check/dns"},
+		})
+	})
+
 	addr := ":8080"
 	log.Printf("listening on %s", addr)
 	if err := http.ListenAndServe(addr, nil); err != nil {
@@ -191,7 +202,7 @@ func withTimeout(timeout time.Duration, fn func(context.Context) Result) http.Ha
 	}
 }
 
-func respondJSON(w http.ResponseWriter, status int, res Result) {
+func respondJSON(w http.ResponseWriter, status int, res any) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
 	if err := json.NewEncoder(w).Encode(res); err != nil {
