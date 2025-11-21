@@ -1,0 +1,81 @@
+{
+  "timeout_seconds": 5,
+  "http": {
+    "host": "10.20.x.2",
+    "port": 80,
+    "path": "/joomla",
+    "expected_content": "easy to get started creating your website",
+    "regex": true,
+    "status": 200,
+    "scheme": "http",
+    "allow_insecure_tls": false
+  },
+  "https": {
+    "host": "10.20.x.2",
+    "port": 8006,
+    "path": "/",
+    "expected_content": "",
+    "regex": false,
+    "status": 200,
+    "scheme": "https",
+    "allow_insecure_tls": true
+  },
+  "smtp": {
+    "host": "10.20.x.2",
+    "port": 25,
+    "sender": "hello@scoring.engine",
+    "receiver": "tuck@sherwood.lan",
+    "body": "howdy, friar! he's about to have an outlaw for an inlaw!"
+  },
+  "pop3": {
+    "host": "10.20.x.2",
+    "port": 110,
+    "use_ssl": false,
+    "username": "ad_user",
+    "password": "Password1!",
+    "commands": [
+      {
+        "command": "STAT",
+        "expected": "+OK",
+        "regex": false
+      }
+    ]
+  },
+  "ftp": {
+    "host": "10.20.x.2",
+    "port": 55,
+    "username": "anonymous",
+    "password": "anonymous@",
+    "files": [
+      {
+        "name": "memo.txt",
+        "sha256": "9d8453505bdc6f269678e16b3e56c2a2948a41f2c792617cc9611ed363c95b63"
+      },
+      {
+        "name": "workfiles.txt",
+        "regex": "work.*work"
+      }
+    ]
+  },
+  "dns": {
+    "server": "10.20.x.2",
+    "port": 4000,
+    "records": [
+      {
+        "kind": "A",
+        "domain": "townsquare.sherwood.lan",
+        "answers": [
+          "192.168.1.4"
+        ]
+      },
+      {
+        "kind": "MX",
+        "domain": "sherwood.lan",
+        "answers": [
+          "192.168.1.5",
+          "10.20.1.5"
+        ]
+      }
+    ]
+  }
+}
