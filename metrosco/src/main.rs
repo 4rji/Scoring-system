@@ -1,0 +1,108 @@
+mod auth;
+mod checker;
+mod router;
+
+use axum::http::header::{ACCEPT, AUTHORIZATION, CONTENT_TYPE};
+use axum::http::{Method, StatusCode};
+use axum::routing::get_service;
+use axum::Router;
+use checker::injects::InjectUser;
+use checker::Config;
+use std::{net::SocketAddr, sync::Arc, time::Duration};
+use tokio::{sync::RwLock, time};
+use tower::ServiceBuilder;
+use tower_http::cors::CorsLayer;
+use tower_http::services::{ServeDir, ServeFile};
+use tower_http::trace::TraceLayer;
+use tracing::{debug, debug_span, error, info};
+use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
+
+use crate::checker::resource_location;
+
+pub type ConfigState = Arc<RwLock<Config>>;
+
+#[tokio::main]
+async fn main() {
+    tracing_subscriber::registry()
+        .with(
+            tracing_subscriber::EnvFilter::try_from_env("LOG_LEVEL")
+                .unwrap_or_else(|_| "scoreboard=info,tower_http=info".into()),
+        )
+        .with(tracing_subscriber::fmt::layer())
+        .init();
+    let version = env!("CARGO_PKG_VERSION");
+    info!("Starting Scoreboard v{}", version);
+    let state = Arc::new(RwLock::new(Config::new()));
+    let score_state = Arc::clone(&state);
+    tokio::spawn(async move {
+        let mut interval = time::interval(Duration::from_secs(10));
+        loop {
+            interval.tick().await;
+            debug!("Game Tick");
+            let mut config = { score_state.read().await.clone() };
+            if config.is_active() {
+                config.inject_tick();
+                config.score_tick().await;
+                let mut truth = score_state.write().await;
+                truth.inject_tick();
+                truth.smart_combine(config);
+            }
+            debug!("Game Tick Complete");
+        }
+    });
+    let save_loop_state = Arc::clone(&state);
+    tokio::spawn(async move {
+        let mut interval = time::interval(Duration::from_secs(600));
+        loop {
+            interval.tick().await;
+            let span = debug_span!("Save Loop");
+            let _enter = span.enter();
+            let config = save_loop_state.read().await;
+            debug!("Autosaving");
+            if let Err(err) = config.autosave() {
+                error!("Failed to autosave: {:?}", err);
+            }
+        }
+    });
+    let download_dir = ServeDir::new(format!("{}/downloads", resource_location()));
+
+    let origins = [
+        "http://localhost:8000".parse().unwrap(),
+        "http://localhost:3000".parse().unwrap(),
+        "http://localhost:3000/".parse().unwrap(),
+        "localhost".parse().unwrap(),
+    ];
+
+    let cors = CorsLayer::new()
+        .allow_credentials(true)
+        .allow_origin(origins)
+        .allow_methods([
+            Method::GET,
+            Method::POST,
+            Method::DELETE,
+            Method::PUT,
+            Method::PATCH,
+        ])
+        .allow_headers([AUTHORIZATION, ACCEPT, CONTENT_TYPE]);
+
+    let app_dir = std::env::var("SB_APP_DIR").unwrap_or_else(|_| "public".to_string());
+
+    let app = Router::new()
+        .nest("/api", router::main_router(state.clone()))
+        .nest_service("/downloads", download_dir)
+        .nest_service("/assets", get_service(ServeDir::new(format!("{}/assets/", app_dir))))
+        .fallback_service(
+            get_service(ServeFile::new(format!("{}/index.html",app_dir))).handle_error(|_| async move {
+                (StatusCode::INTERNAL_SERVER_ERROR, "internal server error")
+            }),
+        )
+        .layer(ServiceBuilder::new().layer(TraceLayer::new_for_http()))
+        .layer(cors)
+        .with_state(state);
+    let port = std::env::var("SB_PORT").unwrap_or_else(|_| "8000".to_string());
+    let addr = SocketAddr::from(([127, 0, 0, 1], port.parse::<u16>().expect("Invalid Port")));
+
+    info!("Listening on http://{}", addr);
+    let listener = tokio::net::TcpListener::bind(&addr).await.unwrap();
+    let _ = axum::serve(listener, app).await.unwrap();
+}
