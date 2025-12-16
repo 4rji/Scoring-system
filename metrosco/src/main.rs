@@ -11,7 +11,7 @@ use checker::Config;
 use std::{net::SocketAddr, sync::Arc, time::Duration};
 use tokio::{sync::RwLock, time};
 use tower::ServiceBuilder;
-use tower_http::cors::CorsLayer;
+use tower_http::cors::{AllowOrigin, CorsLayer};
 use tower_http::services::{ServeDir, ServeFile};
 use tower_http::trace::TraceLayer;
 use tracing::{debug, debug_span, error, info};
@@ -66,16 +66,10 @@ async fn main() {
     });
     let download_dir = ServeDir::new(format!("{}/downloads", resource_location()));
 
-    let origins = [
-        "http://localhost:8000".parse().unwrap(),
-        "http://localhost:3000".parse().unwrap(),
-        "http://localhost:3000/".parse().unwrap(),
-        "localhost".parse().unwrap(),
-    ];
-
     let cors = CorsLayer::new()
         .allow_credentials(true)
-        .allow_origin(origins)
+        // Mirror whatever origin is calling us so tunnels/custom domains keep working.
+        .allow_origin(AllowOrigin::mirror_request())
         .allow_methods([
             Method::GET,
             Method::POST,

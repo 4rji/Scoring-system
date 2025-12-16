@@ -12,11 +12,13 @@ import TeamPasswords from "./Pages/TeamPasswords";
 import LoginPage from "./Pages/Login";
 import { useScoreboardInfo } from "./Hooks/CtrlHooks";
 
-if (import.meta.env.PROD) {
-  axios.defaults.baseURL = `http://${window.location.hostname}:${window.location.port}/api`;
-} else {
-  axios.defaults.baseURL = `http://${window.location.hostname}:8000/api`;
-}
+const { protocol, host, hostname } = window.location;
+// In production, mirror the current origin (respects HTTPS and any tunnel/port in use).
+const prodBase = `${protocol}//${host}/api`;
+// In dev, default to the local scoreboard port unless explicitly overridden.
+const devBase = import.meta.env.VITE_API_URL ?? `http://${hostname}:8000/api`;
+
+axios.defaults.baseURL = import.meta.env.PROD ? prodBase : devBase;
 axios.defaults.headers.post["Content-Type"] = "application/json";
 axios.defaults.withCredentials = true
 
