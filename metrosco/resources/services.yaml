@@ -1,5 +1,7 @@
 HTTP: WEB/http_compare.sh $HTTP_URL expected/http_expected.txt
 HTTPS: WEB/http_compare.sh $HTTPS_URL expected/https_expected.txt --insecure
+ECOM_HTTP: WEB/curlfind.sh $ECOM_HTTP_URL "Directory listing for /"
+ECOM_HTTPS: ./port.sh $ECOM_HOST 443
 SMTP: MAIL/smtp_check.py $SMTP_HOST $SMTP_PORT $SMTP_USER $SMTP_PASS $SMTP_FROM $SMTP_TO --starttls
 POP3: MAIL/pop3_check.py $POP3_HOST $POP3_PORT $POP3_USER $POP3_PASS --ssl
 FTP: FTP/login.sh $FTP_HOST $FTP_USER:$FTP_PASS $FTP_PATH
