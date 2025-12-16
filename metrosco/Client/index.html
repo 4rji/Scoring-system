@@ -60,13 +60,28 @@
           const wrapper = document.createElement("div");
           wrapper.className = "flex flex-col items-center px-3";
 
-          const circle = document.createElement("div");
-          circle.className =
-            "h-8 w-8 rounded-full border-2 shadow " +
-            (status.reachable
-              ? "bg-green-500 border-green-700"
-              : "bg-red-500 border-red-700");
-          wrapper.appendChild(circle);
+          const indicator = document.createElement("div");
+          const onColor = "#3b82f6"; // blue-500
+          const onBorder = "#1d4ed8"; // blue-700
+          const offColor = "#ef4444"; // red-500
+          const offBorder = "#b91c1c"; // red-700
+          const isUp = !!status.reachable;
+          indicator.style.cssText = `
+            width: 42px;
+            height: 42px;
+            border-radius: 9999px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.25);
+            border: 3px solid ${isUp ? onBorder : offBorder};
+            background: ${isUp ? onColor : offColor};
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 22px;
+            font-weight: 800;
+          `;
+          indicator.textContent = "•";
+          wrapper.appendChild(indicator);
 
           const name = document.createElement("div");
           name.className = "text-sm font-semibold mt-1 text-center";
@@ -74,9 +89,8 @@
           wrapper.appendChild(name);
 
           const ip = document.createElement("div");
-          ip.className = "text-xs text-slate-600 dark:text-slate-300";
-          const method = status.method || "ICMP ping";
-          ip.textContent = `${status.ip} • ${method}`;
+          ip.className = "text-xs text-slate-700 dark:text-slate-200";
+          ip.textContent = status.ip;
           wrapper.appendChild(ip);
 
           return wrapper;
