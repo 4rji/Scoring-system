@@ -1,4 +1,4 @@
-team_1:
+"404 Team not found":
   HTTP_URL: "http://172.25.39.140"
   HTTPS_URL: "https://172.25.39.140"
   SMTP_HOST: "172.25.39.39"
@@ -17,3 +17,5 @@ team_1:
   FTP_PATH: "/"
   DNS_RECORD: "replace.me.domain"
   DNS_SERVER: "172.25.39.155"
+  SPLUNK_HOST: "172.25.39.9"
+  SPLUNK_PORT: "8000"

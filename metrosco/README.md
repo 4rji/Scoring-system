@@ -1,4 +1,4 @@
-# CyberScoreboard
+# Metro CCDC Scoreboard
 Made for use in CCDC type games. It runs a series of checkers against different teams. The server is written in rust, the web app is written in typescript (react), and the checkers are written in whatever language you like (mostly bash and python)
 
 The idea of this scoreboard is that it is a platform to build on with your own checkers and scripts. The scoreboard is just a runner and a pretty ui.
@@ -9,8 +9,8 @@ The idea of this scoreboard is that it is a platform to build on with your own c
 3. Have bash installed in /bin/bash.
 4. Whatever checkers you are using, make sure you have their tools installed. For instance, the port scan checker relies on netcat, so if you want to use it, make sure you have netcat installed. The minecraft checker is written in python, so if you want to use it, have python installed.
 # Running the Scoreboard
-1. `git clone https://github.com/bmin023/CyberScoreboard.git`
-2. `cd CyberScoreboard`
+1. `git clone <repo-url> MetroCCDCScoreboard`
+2. `cd MetroCCDCScoreboard`
 3. Make a services.yaml and a teams.yaml file in the resources directory. If you're just testing to see if it works, they can be blank, but they have to be present.
 4. `cargo run -r`
 You should now have the scoreboard up and running at http://localhost:8000

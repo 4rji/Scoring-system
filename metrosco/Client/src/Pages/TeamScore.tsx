@@ -10,6 +10,15 @@ const Scoreboard = () => {
     useTeamScore(teamName);
   if (scoreLoading || !teamName) return <div>Loading...</div>;
   if (scoreError) return <div>Error!</div>;
+  const serviceDescriptions: Record<string, string> = {
+    HTTP: "HTTP content match against expected body",
+    HTTPS: "HTTPS content match (insecure allowed) against expected body",
+    SMTP: "STARTTLS login and send probe email",
+    POP3: "POP3 SSL login check",
+    FTP: "FTP login and path accessibility check",
+    DNS: "DNS lookup for provided record via specified server",
+    Splunk: "TCP port check to Splunk web interface",
+  };
   return (
     <div className="w-10/12 m-auto my-4">
       <table className="bg-slate-50 dark:bg-zinc-800 w-full shadow-md rounded-xl overflow-clip dark:border dark:border-zinc-700">
@@ -22,7 +31,12 @@ const Scoreboard = () => {
                   (score.up ? "bg-green-500" : "bg-red-500")
                 }
               >
-                {data.services[index]}
+                <div>{data.services[index]}</div>
+                {serviceDescriptions[data.services[index]] && (
+                  <div className="text-xs font-normal text-slate-800 dark:text-slate-200">
+                    {serviceDescriptions[data.services[index]]}
+                  </div>
+                )}
               </td>
               {score.history.map((up, i) =>
                 up ? (

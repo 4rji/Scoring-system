@@ -2,10 +2,10 @@ mod admin;
 mod team;
 
 use axum::{
-    extract::{Path, State}, http::StatusCode, response::{IntoResponse, Redirect}, routing::{get, post}, Json, Router
+    extract::State, http::StatusCode, routing::{get, post}, Json, Router
 };
 use serde::{Deserialize, Serialize};
-use tracing::info;
+use tokio::{process::Command, task::JoinSet, time::timeout};
 
 use crate::{auth::{Auth, TeamCredentials}, checker::ScoreboardInfo};
 
@@ -15,6 +15,7 @@ use axum_login::{
 };
 
 use crate::{checker::Score, ConfigState};
+use std::time::Duration;
 
 pub type AuthSession = axum_login::AuthSession<Auth>;
 
@@ -32,6 +33,7 @@ pub fn main_router(state: ConfigState) -> Router<ConfigState> {
         .route("/time", get(time))
         .route("/login", post(login))
         .route("/info", get(scoreboard_info))
+        .route("/reachability", get(reachability))
         .layer(auth_layer)
 }
 
@@ -53,6 +55,14 @@ struct TimeBody {
     minutes: u64,
     seconds: u64,
     active: bool,
+}
+
+#[derive(Serialize)]
+struct ReachabilityStatus {
+    name: String,
+    ip: String,
+    method: String,
+    reachable: bool,
 }
 
 async fn time(State(state): State<ConfigState>) -> Json<TimeBody> {
@@ -107,4 +117,54 @@ async fn login(
     } else {
         Err(StatusCode::UNAUTHORIZED)
     }
+}
+
+async fn probe_host(ip: &str, port: u16) -> bool {
+    // Fallback probe using a single ICMP echo (ping). This assumes the system ping binary is available.
+    let mut cmd = Command::new("ping");
+    cmd.arg("-c").arg("1").arg("-W").arg("1").arg(ip)
+        .stdout(std::process::Stdio::null())
+        .stderr(std::process::Stdio::null());
+    match timeout(Duration::from_secs(2), cmd.status()).await {
+        Ok(Ok(status)) => status.success(),
+        _ => false,
+    }
+}
+
+async fn reachability() -> Json<Vec<ReachabilityStatus>> {
+    let targets = vec![
+        ("ecom", "172.25.39.11"),
+        ("webmail", "172.25.39.39"),
+        ("splunk", "172.25.39.9"),
+        ("win11", "172.25.39.144"),
+        ("ftp", "172.25.39.162"),
+        ("ad", "172.25.39.155"),
+        ("web", "172.25.39.140"),
+    ];
+
+    let mut tasks = JoinSet::new();
+    for (name, ip) in targets {
+        let name = name.to_string();
+        let ip = ip.to_string();
+        tasks.spawn(async move {
+            let reachable = probe_host(&ip, 0).await;
+            ReachabilityStatus {
+                name,
+                ip,
+                method: "ICMP ping".to_string(),
+                reachable,
+            }
+        });
+    }
+
+    let mut results = Vec::new();
+    while let Some(res) = tasks.join_next().await {
+        if let Ok(status) = res {
+            results.push(status);
+        }
+    }
+
+    results.sort_by(|a, b| a.name.cmp(&b.name));
+
+    Json(results)
 }

@@ -34,7 +34,7 @@ const LoginRouter = () => {
         <Route path="/admin" element={<AdminPage />} />
         <Route path="/login" element={<LoginPage />} />
       </Routes>
-      {!infoLoading && <div className="fixed text-sm right-2 bottom-1 font-light">Scoreboard v{info.version}</div>}
+      {!infoLoading && <div className="fixed text-sm right-2 bottom-1 font-light">Metro CCDC Scoreboard v{info.version}</div>}
     </main>
   )
 };

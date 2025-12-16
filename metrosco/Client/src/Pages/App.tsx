@@ -2,6 +2,16 @@ import { Link } from "react-router-dom";
 import { useScore } from "../Hooks/CtrlHooks";
 import { formatDate } from "../util";
 
+const serviceDescriptions: Record<string, string> = {
+  HTTP: "HTTP content match against expected body",
+  HTTPS: "HTTPS content match (insecure allowed) against expected body",
+  SMTP: "STARTTLS login and send probe email",
+  POP3: "POP3 SSL login check",
+  FTP: "FTP login and path accessibility check",
+  DNS: "DNS lookup for provided record via specified server",
+  Splunk: "TCP port check to Splunk web interface",
+};
+
 const Scoreboard = () => {
   const { data, scoreLoading, scoreError, scoreUpdatedAt } = useScore();
   if (scoreLoading) return <div>Loading...</div>;
@@ -13,7 +23,14 @@ const Scoreboard = () => {
           <tr>
             <th>Teams</th>
             {data.services.map((service) => (
-              <th className="text-center" key={service}>{service}</th>
+              <th className="text-center" key={service}>
+                <div>{service}</div>
+                {serviceDescriptions[service] && (
+                  <div className="text-xs font-normal text-slate-600 dark:text-slate-300">
+                    {serviceDescriptions[service]}
+                  </div>
+                )}
+              </th>
             ))}
           </tr>
         </thead>
@@ -77,7 +94,7 @@ function App() {
       <div className="w-screen flex justify-center content-center">
         <div className="h-full">
           <h1 className="text-6xl font-extrabold my-3 text-center">
-            Cyber Scoreboard {import.meta.env.DEV ? "(DEV)" : ""}
+            Metro CCDC Scoreboard {import.meta.env.DEV ? "(DEV)" : ""}
           </h1>
           <div className="px-10">
             <Scoreboard />
