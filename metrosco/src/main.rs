@@ -100,7 +100,8 @@ async fn main() {
         .layer(cors)
         .with_state(state);
     let port = std::env::var("SB_PORT").unwrap_or_else(|_| "8000".to_string());
-    let addr = SocketAddr::from(([127, 0, 0, 1], port.parse::<u16>().expect("Invalid Port")));
+    // Bind to all interfaces so the server is reachable from the network, not just localhost.
+    let addr = SocketAddr::from(([0, 0, 0, 0], port.parse::<u16>().expect("Invalid Port")));
 
     info!("Listening on http://{}", addr);
     let listener = tokio::net::TcpListener::bind(&addr).await.unwrap();
