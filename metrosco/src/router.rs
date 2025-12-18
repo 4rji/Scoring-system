@@ -15,7 +15,7 @@ use axum_login::{
 };
 
 use crate::{checker::Score, ConfigState};
-use std::time::Duration;
+use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
 pub type AuthSession = axum_login::AuthSession<Auth>;
 
@@ -31,6 +31,8 @@ pub fn main_router(state: ConfigState) -> Router<ConfigState> {
         .nest("/team", team::team_router(state))
         .route("/scores", get(scores))
         .route("/time", get(time))
+        .route("/competition", get(competition_status))
+        .route("/competition/start", post(start_competition))
         .route("/login", post(login))
         .route("/info", get(scoreboard_info))
         .route("/reachability", get(reachability))
@@ -65,6 +67,11 @@ struct ReachabilityStatus {
     reachable: bool,
 }
 
+#[derive(Serialize)]
+struct CompetitionStatus {
+    started_at_ms: Option<u64>,
+}
+
 async fn time(State(state): State<ConfigState>) -> Json<TimeBody> {
     let config = state.read().await;
     let runtime = config.run_time();
@@ -72,6 +79,25 @@ async fn time(State(state): State<ConfigState>) -> Json<TimeBody> {
         minutes: runtime.as_secs() / 60,
         seconds: runtime.as_secs() % 60,
         active: config.is_active(),
+    })
+}
+
+async fn competition_status(State(state): State<ConfigState>) -> Json<CompetitionStatus> {
+    let config = state.read().await;
+    Json(CompetitionStatus {
+        started_at_ms: config.competition_start_ms(),
+    })
+}
+
+async fn start_competition(State(state): State<ConfigState>) -> Json<CompetitionStatus> {
+    let mut config = state.write().await;
+    let start_ms = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap_or_else(|_| Duration::from_secs(0))
+        .as_millis() as u64;
+    let stored = config.set_competition_start_ms(start_ms);
+    Json(CompetitionStatus {
+        started_at_ms: Some(stored),
     })
 }
 

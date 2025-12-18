@@ -25,6 +25,8 @@ pub struct Config {
     last_start: Instant,
     #[serde(with = "serde_millis")]
     game_time: Duration,
+    #[serde(default)]
+    competition_start_ms: Option<u64>,
 }
 
 impl Config {
@@ -39,6 +41,7 @@ impl Config {
             active: true,
             last_start: Instant::now(),
             game_time: Duration::from_secs(0),
+            competition_start_ms: None,
             // to_delete: vec![],
         };
         validate_password_fs(&me);
@@ -100,6 +103,15 @@ impl Config {
                 .map(|s| (s.name.to_owned(), Score::default()))
                 .collect();
         }
+    }
+    pub fn competition_start_ms(&self) -> Option<u64> {
+        self.competition_start_ms
+    }
+    pub fn set_competition_start_ms(&mut self, start_ms: u64) -> u64 {
+        if self.competition_start_ms.is_none() {
+            self.competition_start_ms = Some(start_ms);
+        }
+        self.competition_start_ms.unwrap()
     }
     pub async fn score_tick(&mut self) {
         score_teams(self).await;

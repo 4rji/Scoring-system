@@ -138,5 +138,292 @@
         });
       })();
     </script>
+    <script>
+      (function () {
+        const schedule = [
+          {
+            start: "00:00",
+            end: "00:15",
+            inject: "BAN01 - Device Banners",
+            description:
+              "Configure legal pre-login warning banners on devices/systems",
+            duration: 15,
+          },
+          {
+            start: "00:05",
+            end: "00:20",
+            inject: "BAN02 - Proper Network Access Notification",
+            description: "Configure network access warning/notification per policy",
+            duration: 15,
+          },
+          {
+            start: "00:10",
+            end: "00:50",
+            inject: "BCOM01T - Network Inventory Management Report",
+            description: "Build a managed inventory of systems, IPs, roles, services",
+            duration: 40,
+          },
+          {
+            start: "00:40",
+            end: "01:00",
+            inject: "03Password Change",
+            description: "Change and document required passwords",
+            duration: 20,
+          },
+          {
+            start: "00:50",
+            end: "01:05",
+            inject: "NTP01 - Configure Consistent & Accurate Time",
+            description: "Configure and verify NTP/time synchronization",
+            duration: 15,
+          },
+          {
+            start: "00:55",
+            end: "01:45",
+            inject: "DET01 - Server Access Attempts",
+            description:
+              "Detect and document unauthorized/suspicious access attempts",
+            duration: 50,
+          },
+          {
+            start: "01:35",
+            end: "02:00",
+            inject: "END01 - Malware Mitigation",
+            description: "Identify and mitigate malware/suspicious processes",
+            duration: 25,
+          },
+          {
+            start: "01:50",
+            end: "02:15",
+            inject: "EVAL01T - Evaluation Task",
+            description: "Perform the required evaluation and document findings",
+            duration: 25,
+          },
+          {
+            start: "02:05",
+            end: "02:35",
+            inject: "LINX04A - Protect Linux Servers from Unnecessary Packets",
+            description:
+              "Restrict unnecessary traffic / harden Linux network exposure",
+            duration: 30,
+          },
+          {
+            start: "02:25",
+            end: "02:50",
+            inject: "Internal Service Evaluation",
+            description:
+              "Identify and evaluate active internal services and open ports",
+            duration: 25,
+          },
+          {
+            start: "02:40",
+            end: "03:30",
+            inject: "Web Presence Integrity",
+            description:
+              "Verify website content integrity and detect tampering",
+            duration: 50,
+          },
+        ].map((item) => {
+          const parts = item.start.split(":").map(Number);
+          const seconds = (parts[0] * 60 + parts[1]) * 60;
+          return Object.assign({ startSeconds: seconds }, item);
+        });
+
+        const containerId = "inject-schedule";
+        let startedAt = null;
+        let timer = null;
+
+        const formatCountdown = (totalSeconds) => {
+          const clamped = Math.max(0, totalSeconds);
+          const minutes = Math.floor(clamped / 60);
+          const seconds = clamped % 60;
+          return `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
+        };
+
+        const getVisibleItems = (elapsedSeconds) => {
+          return schedule.filter((item) => elapsedSeconds >= item.startSeconds);
+        };
+
+        const buildRow = (item, elapsedSeconds) => {
+          const row = document.createElement("tr");
+          row.className = "border-t dark:border-zinc-700";
+
+          const cells = [
+            item.start,
+            item.end,
+            item.inject,
+            item.description,
+            String(item.duration),
+            formatCountdown(item.startSeconds + item.duration * 60 - elapsedSeconds),
+          ];
+
+          cells.forEach((value, index) => {
+            const td = document.createElement("td");
+            td.className = index === 2 ? "p-2 font-medium" : "p-2";
+            td.textContent = value;
+            row.appendChild(td);
+          });
+
+          return row;
+        };
+
+        const renderBody = (host, elapsedSeconds) => {
+          const tbody = host.querySelector("tbody");
+          if (!tbody) return;
+          tbody.innerHTML = "";
+
+          if (!startedAt) {
+            const row = document.createElement("tr");
+            const cell = document.createElement("td");
+            cell.className = "p-2 text-center";
+            cell.colSpan = 6;
+            cell.textContent = "Click Start Competition to begin.";
+            row.appendChild(cell);
+            tbody.appendChild(row);
+            return;
+          }
+
+          const visibleItems = getVisibleItems(elapsedSeconds);
+          if (visibleItems.length === 0) {
+            const row = document.createElement("tr");
+            const cell = document.createElement("td");
+            cell.className = "p-2 text-center";
+            cell.colSpan = 6;
+            cell.textContent = "Waiting for the first inject...";
+            row.appendChild(cell);
+            tbody.appendChild(row);
+            return;
+          }
+
+          visibleItems.forEach((item) => {
+            tbody.appendChild(buildRow(item, elapsedSeconds));
+          });
+        };
+
+        const ensureContainer = () => {
+          let host = document.getElementById(containerId);
+          if (!host) {
+            host = document.createElement("div");
+            host.id = containerId;
+            host.className =
+              "my-5 bg-slate-50 dark:bg-zinc-800 p-2 rounded-xl shadow-md dark:border border-zinc-700";
+
+            const heading = document.createElement("h2");
+            heading.className = "text-3xl font-bold text-center mb-2";
+            heading.textContent = "Inject Schedule";
+            host.appendChild(heading);
+
+            const buttonRow = document.createElement("div");
+            buttonRow.className = "flex justify-center mb-3";
+            const button = document.createElement("button");
+            button.className =
+              "bg-slate-200 px-4 py-2 rounded shadow-sm hover:shadow-md active:shadow-sm text-slate-900 dark:bg-zinc-700 dark:text-slate-100";
+            button.textContent = "Start Competition";
+            button.addEventListener("click", async () => {
+              if (startedAt) return;
+              try {
+                const res = await fetch("/api/competition/start", {
+                  method: "POST",
+                  credentials: "include",
+                });
+                if (res.ok) {
+                  const data = await res.json();
+                  if (data && data.started_at_ms) {
+                    startedAt = data.started_at_ms;
+                  }
+                }
+              } catch (e) {
+                console.error("competition start failed", e);
+              }
+              if (!startedAt) return;
+              button.disabled = true;
+              const elapsed = Math.floor((Date.now() - startedAt) / 1000);
+              renderBody(host, elapsed);
+              timer = setInterval(() => {
+                const tickElapsed = Math.floor((Date.now() - startedAt) / 1000);
+                renderBody(host, tickElapsed);
+              }, 1000);
+            });
+            buttonRow.appendChild(button);
+            host.appendChild(buttonRow);
+
+            const table = document.createElement("table");
+            table.className = "table-auto w-full";
+            table.innerHTML = `
+              <thead>
+                <tr class="text-left">
+                  <th class="p-2">Start</th>
+                  <th class="p-2">End</th>
+                  <th class="p-2">Inject</th>
+                  <th class="p-2">Short description (EN)</th>
+                  <th class="p-2">Duration</th>
+                  <th class="p-2">Time Remaining</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            `;
+            host.appendChild(table);
+            renderBody(host, 0);
+          }
+          return host;
+        };
+
+        const insertContainer = () => {
+          const host = ensureContainer();
+          const leaderboardTitle = Array.from(document.querySelectorAll("h2")).find(
+            (el) => el.textContent && el.textContent.trim() === "Leaderboard:"
+          );
+          const leaderboard = leaderboardTitle ? leaderboardTitle.closest("div") : null;
+          const root = document.getElementById("root");
+          if (leaderboard && leaderboard.parentElement) {
+            const parent = leaderboard.parentElement;
+            if (parent.contains(host)) {
+              if (host.previousSibling !== leaderboard) {
+                parent.insertBefore(host, leaderboard.nextSibling);
+              }
+              return true;
+            }
+            parent.insertBefore(host, leaderboard.nextSibling);
+            return true;
+          }
+          if (root) {
+            if (!root.contains(host)) {
+              root.appendChild(host);
+            }
+            return true;
+          }
+          return false;
+        };
+
+        const observer = new MutationObserver(() => insertContainer());
+        window.addEventListener("DOMContentLoaded", async () => {
+          try {
+            const res = await fetch("/api/competition", { credentials: "include" });
+            if (res.ok) {
+              const data = await res.json();
+              if (data && data.started_at_ms) {
+                startedAt = data.started_at_ms;
+              }
+            }
+          } catch (e) {
+            console.error("competition status fetch failed", e);
+          }
+          insertContainer();
+          const root = document.getElementById("root");
+          if (root) observer.observe(root, { childList: true, subtree: true });
+          if (startedAt) {
+            const host = ensureContainer();
+            const button = host.querySelector("button");
+            if (button) button.disabled = true;
+            const elapsed = Math.floor((Date.now() - startedAt) / 1000);
+            renderBody(host, elapsed);
+            timer = setInterval(() => {
+              const tickElapsed = Math.floor((Date.now() - startedAt) / 1000);
+              renderBody(host, tickElapsed);
+            }, 1000);
+          }
+        });
+      })();
+    </script>
   </body>
 </html>

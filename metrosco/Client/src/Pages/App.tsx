@@ -88,6 +88,7 @@ const Leaderboard = () => {
     </div>
   );
 };
+
 function App() {
   return (
     <div className="bg-slate-100 h-screen dark:bg-zinc-900 dark:text-gray-100">
