@@ -4,6 +4,7 @@ mod router;
 
 use axum::http::header::{ACCEPT, AUTHORIZATION, CONTENT_TYPE};
 use axum::http::{Method, StatusCode};
+use axum::response::Html;
 use axum::routing::get_service;
 use axum::Router;
 use checker::injects::InjectUser;
@@ -85,6 +86,7 @@ async fn main() {
         .nest("/api", router::main_router(state.clone()))
         .nest_service("/downloads", download_dir)
         .nest_service("/assets", get_service(ServeDir::new(format!("{}/assets/", app_dir))))
+        .route("/injects", axum::routing::get(injects_page))
         .fallback_service(
             get_service(ServeFile::new(format!("{}/index.html",app_dir))).handle_error(|_| async move {
                 (StatusCode::INTERNAL_SERVER_ERROR, "internal server error")
@@ -100,4 +102,9 @@ async fn main() {
     info!("Listening on http://{}", addr);
     let listener = tokio::net::TcpListener::bind(&addr).await.unwrap();
     let _ = axum::serve(listener, app).await.unwrap();
+}
+
+async fn injects_page() -> Html<&'static str> {
+    const INJECTS_HTML: &str = include_str!("../public/injects.html");
+    Html(INJECTS_HTML)
 }
