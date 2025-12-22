@@ -21,6 +21,13 @@ go run .
 ```
 Server listens on `:8080`. Change by wrapping in a reverse proxy or editing `main.go`.
 
+### Aggregator/reader
+Need a small service that polls those checks and returns a single JSON? Run:
+```sh
+SCORING_BASE_URL=http://127.0.0.1:8080 READER_ADDR=:9090 go run ./cmd/reader
+```
+It hits the scoring server root to learn the endpoints (falls back to the default list), calls each `/check/*`, and returns an aggregated `{ok, checks[]}` at `/`. `/healthz` reports the reader is up.
+
 ## Configuration (`config.json`)
 All values can be swapped for your real scoring environment:
 - `http` and `https`: `host`, `port`, `path`, `expected_content` (or `regex`), `status`, `allow_insecure_tls` (set true for self-signed certs).
