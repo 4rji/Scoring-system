@@ -6,138 +6,15 @@
     <title>Metro CCDC Scoreboard</title>
     <script type="module" crossorigin src="/assets/index.8936522c.js"></script>
     <link rel="stylesheet" href="/assets/index.20324306.css">
+    <style>
+      #root {
+        display: none;
+      }
+    </style>
   </head>
   <body class="bg-slate-100 dark:bg-zinc-900 dark:text-zinc-100">
+    <div id="inject-schedule-only"></div>
     <div id="root"></div>
-    <div id="reachability-bar"></div>
-    <script>
-      (function () {
-        const descriptions = {
-          HTTP: "TCP 80: HTTP GET + body compare",
-          HTTPS: "TCP 443: HTTPS GET (skip TLS verify) + body compare",
-          SMTP: "TCP 587: SMTP AUTH + STARTTLS + send probe mail",
-          POP3: "TCP 995: POP3S login handshake",
-          FTP: "TCP 21: FTP login then path accessibility check",
-          DNS: "UDP/TCP 53: Resolve record via specified DNS server",
-          Splunk: "TCP 8000: Port open check to Splunk web UI",
-        };
-
-        const applyDescriptions = () => {
-          document.querySelectorAll("thead tr th").forEach((th) => {
-            const name =
-              th.firstChild && th.firstChild.textContent && th.firstChild.textContent.trim();
-            if (!name || !descriptions[name] || th.querySelector(".svc-desc")) return;
-            const desc = document.createElement("div");
-            desc.className = "svc-desc text-sm font-semibold text-slate-700 dark:text-slate-200";
-            desc.textContent = descriptions[name];
-            th.appendChild(desc);
-          });
-
-          document.querySelectorAll("table tbody tr td:first-child").forEach((td) => {
-            const name =
-              td.firstChild && td.firstChild.textContent && td.firstChild.textContent.trim();
-            if (!name || !descriptions[name] || td.querySelector(".svc-desc")) return;
-            const desc = document.createElement("div");
-            desc.className = "svc-desc text-sm font-semibold text-slate-900 dark:text-slate-100";
-            desc.textContent = descriptions[name];
-            td.appendChild(desc);
-          });
-        };
-
-        const observer = new MutationObserver(() => applyDescriptions());
-        window.addEventListener("DOMContentLoaded", () => {
-          const root = document.getElementById("root");
-          if (root) observer.observe(root, { childList: true, subtree: true });
-          applyDescriptions();
-        });
-      })();
-    </script>
-    <script>
-      (function () {
-        const containerId = "reachability-bar";
-        const title = "Host reachability";
-        const pollingMs = 5000;
-
-        const buildCircle = (status) => {
-          const wrapper = document.createElement("div");
-          wrapper.className = "flex flex-col items-center px-3";
-
-          const indicator = document.createElement("div");
-          const onColor = "#3b82f6"; // blue-500
-          const onBorder = "#1d4ed8"; // blue-700
-          const offColor = "#ef4444"; // red-500
-          const offBorder = "#b91c1c"; // red-700
-          const isUp = !!status.reachable;
-          indicator.style.cssText = `
-            width: 42px;
-            height: 42px;
-            border-radius: 9999px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.25);
-            border: 3px solid ${isUp ? onBorder : offBorder};
-            background: ${isUp ? onColor : offColor};
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 22px;
-            font-weight: 800;
-          `;
-          indicator.textContent = "•";
-          wrapper.appendChild(indicator);
-
-          const name = document.createElement("div");
-          name.className = "text-sm font-semibold mt-1 text-center";
-          name.textContent = status.name;
-          wrapper.appendChild(name);
-
-          const ip = document.createElement("div");
-          ip.className = "text-xs text-slate-700 dark:text-slate-200";
-          ip.textContent = status.ip;
-          wrapper.appendChild(ip);
-
-          return wrapper;
-        };
-
-        const render = (data) => {
-          const host = document.getElementById(containerId);
-          if (!host) return;
-          const parent =
-            document.querySelector("h1")?.parentElement || document.body;
-          if (!parent.contains(host)) {
-            parent.insertBefore(host, parent.children[1] || null);
-          }
-          host.className =
-            "my-4 bg-slate-50 dark:bg-zinc-800 p-3 rounded-xl shadow-md border border-slate-200 dark:border-zinc-700";
-          host.innerHTML = "";
-
-          const heading = document.createElement("h2");
-          heading.className = "text-2xl font-bold text-center mb-2";
-          heading.textContent = title;
-          host.appendChild(heading);
-
-          const row = document.createElement("div");
-          row.className = "flex flex-wrap justify-center gap-3";
-          data.forEach((status) => row.appendChild(buildCircle(status)));
-          host.appendChild(row);
-        };
-
-        const fetchReachability = async () => {
-          try {
-            const res = await fetch("/api/reachability", { credentials: "include" });
-            if (!res.ok) return;
-            const data = await res.json();
-            render(data);
-          } catch (e) {
-            console.error("reachability fetch failed", e);
-          }
-        };
-
-        window.addEventListener("DOMContentLoaded", () => {
-          fetchReachability();
-          setInterval(fetchReachability, pollingMs);
-        });
-      })();
-    </script>
     <script>
       (function () {
         const schedule = [
@@ -379,29 +256,12 @@
 
         const insertContainer = () => {
           const host = ensureContainer();
-          const leaderboardTitle = Array.from(document.querySelectorAll("h2")).find(
-            (el) => el.textContent && el.textContent.trim() === "Leaderboard:"
-          );
-          const leaderboard = leaderboardTitle ? leaderboardTitle.closest("div") : null;
-          const root = document.getElementById("root");
-          if (leaderboard && leaderboard.parentElement) {
-            const parent = leaderboard.parentElement;
-            if (parent.contains(host)) {
-              if (host.previousSibling !== leaderboard) {
-                parent.insertBefore(host, leaderboard.nextSibling);
-              }
-              return true;
-            }
-            parent.insertBefore(host, leaderboard.nextSibling);
-            return true;
+          const container = document.getElementById("inject-schedule-only");
+          if (!container) return false;
+          if (!container.contains(host)) {
+            container.appendChild(host);
           }
-          if (root) {
-            if (!root.contains(host)) {
-              root.appendChild(host);
-            }
-            return true;
-          }
-          return false;
+          return true;
         };
 
         const observer = new MutationObserver(() => insertContainer());
