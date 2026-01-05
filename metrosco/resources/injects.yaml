@@ -1,0 +1,91 @@
+INV01 Inventory Report:
+  start: 1
+  duration: 20
+  markdown: |
+    # Inventory Report
+    Inject ID: INV01
+    Please submit the requested report.
+BCOM01T Network Inventory Management Report:
+  start: 5
+  duration: 30
+  markdown: |
+    # Network Inventory Management Report
+    Inject ID: BCOM01T
+    Please submit the requested report.
+DSGN07T Design Network Isolation Requirement:
+  start: 15
+  duration: 30
+  markdown: |
+    # Design Network Isolation Requirement
+    Inject ID: DSGN07T
+    Please submit the requested report.
+BCOM06A Memo to Explain FW Features to Customer:
+  start: 20
+  duration: 45
+  markdown: |
+    # Memo to Explain FW Features to Customer
+    Inject ID: BCOM06A
+    Please submit the requested memo.
+DSGN02T Understanding Network Data Flows:
+  start: 55
+  duration: 50
+  markdown: |
+    # Understanding Network Data Flows
+    Inject ID: DSGN02T
+    Please submit the requested report.
+END01 Malware Mitigation:
+  start: 45
+  duration: 50
+  markdown: |
+    # Malware Mitigation
+    Inject ID: END01
+    Please submit the requested report.
+HDN03 Evaluate Windows Servers:
+  start: 25
+  duration: 50
+  markdown: |
+    # Evaluate Windows Servers
+    Inject ID: HDN03
+    Please submit the requested report.
+HDN02 Evaluate Linux Servers:
+  start: 25
+  duration: 50
+  markdown: |
+    # Evaluate Linux Servers
+    Inject ID: HDN02
+    Please submit the requested report.
+HDN05 Create a Linux Password Policy:
+  start: 40
+  duration: 40
+  markdown: |
+    # Create a Linux Password Policy
+    Inject ID: HDN05
+    Please submit the requested policy.
+HDN04 Password Policy Using GPO:
+  start: 40
+  duration: 40
+  markdown: |
+    # Password Policy Using GPO
+    Inject ID: HDN04
+    Please submit the requested policy.
+HFW06 Restrict Internal Cross Network Traffic:
+  start: 22
+  duration: 70
+  markdown: |
+    # Restrict Internal Cross Network Traffic
+    Inject ID: HFW06
+    Please submit the requested report.
+NETW07T Secure SNMP:
+  start: 35
+  duration: 50
+  markdown: |
+    # Secure SNMP
+    Inject ID: NETW07T
+    Please submit the requested report.
+NETW11A VLAN Attack Concern:
+  start: 30
+  duration: 80
+  markdown: |
+    # VLAN Attack Concern
+    Inject ID: NETW11A
+    Please submit the requested report.
