@@ -6,7 +6,7 @@ mod service;
 mod team;
 
 pub mod saves {
-    pub use super::save::{get_autosave_names, get_save_names, load_save, SaveError};
+    pub use super::save::{get_autosave_names, get_save_names, load_save};
 }
 pub mod passwords {
     pub use super::password::{

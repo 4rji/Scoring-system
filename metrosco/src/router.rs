@@ -145,7 +145,7 @@ async fn login(
     }
 }
 
-async fn probe_host(ip: &str, port: u16) -> bool {
+async fn probe_host(ip: &str, _port: u16) -> bool {
     // Fallback probe using a single ICMP echo (ping). This assumes the system ping binary is available.
     let mut cmd = Command::new("ping");
     cmd.arg("-c").arg("1").arg("-W").arg("1").arg(ip)
