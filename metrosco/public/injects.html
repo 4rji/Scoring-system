@@ -3,121 +3,26 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Inject Schedule</title>
-    <link rel="stylesheet" href="/assets/index.20324306.css">
+    <title>Injects</title>
+    <style>
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #000;
+        color: #fff;
+        font-family: "Georgia", "Times New Roman", serif;
+      }
+      .message {
+        font-size: 64px;
+        font-weight: 700;
+        letter-spacing: 1px;
+      }
+    </style>
   </head>
-  <body class="bg-slate-100 dark:bg-zinc-900 dark:text-zinc-100">
-    <div class="w-screen flex justify-center content-center">
-      <div class="h-full w-full">
-        <div class="px-10 my-2">
-          <div class="my-5 bg-slate-50 dark:bg-zinc-800 p-2 rounded-xl shadow-md dark:border border-zinc-700">
-            <table class="table-auto w-full">
-              <thead>
-                <tr class="text-left">
-                  <th class="p-2">Start</th>
-                  <th class="p-2">End</th>
-                  <th class="p-2">Inject</th>
-                  <th class="p-2">Short description (EN)</th>
-                  <th class="p-2">Duration</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr class="border-t dark:border-zinc-700">
-                  <td class="p-2">00:01</td>
-                  <td class="p-2">00:21</td>
-                  <td class="p-2 font-medium">INV01 - Inventory Report</td>
-                  <td class="p-2"></td>
-                  <td class="p-2">20</td>
-                </tr>
-                <tr class="border-t dark:border-zinc-700">
-                  <td class="p-2">00:05</td>
-                  <td class="p-2">00:35</td>
-                  <td class="p-2 font-medium">BCOM01T - Network Inventory Management Report</td>
-                  <td class="p-2"></td>
-                  <td class="p-2">30</td>
-                </tr>
-                <tr class="border-t dark:border-zinc-700">
-                  <td class="p-2">00:06</td>
-                  <td class="p-2">00:56</td>
-                  <td class="p-2 font-medium">END01 - Malware Mitigation</td>
-                  <td class="p-2"></td>
-                  <td class="p-2">50</td>
-                </tr>
-                <tr class="border-t dark:border-zinc-700">
-                  <td class="p-2">00:10</td>
-                  <td class="p-2">01:00</td>
-                  <td class="p-2 font-medium">DSGN02T - Understanding Network Data Flows</td>
-                  <td class="p-2"></td>
-                  <td class="p-2">50</td>
-                </tr>
-                <tr class="border-t dark:border-zinc-700">
-                  <td class="p-2">00:15</td>
-                  <td class="p-2">00:45</td>
-                  <td class="p-2 font-medium">DSGN07T - Design Network Isolation Requirement</td>
-                  <td class="p-2"></td>
-                  <td class="p-2">30</td>
-                </tr>
-                <tr class="border-t dark:border-zinc-700">
-                  <td class="p-2">00:20</td>
-                  <td class="p-2">01:05</td>
-                  <td class="p-2 font-medium">BCOM06A - Memo to Explain FW Features to Customer</td>
-                  <td class="p-2"></td>
-                  <td class="p-2">45</td>
-                </tr>
-                <tr class="border-t dark:border-zinc-700">
-                  <td class="p-2">00:22</td>
-                  <td class="p-2">01:32</td>
-                  <td class="p-2 font-medium">HFW06 - Restrict Internal Cross Network Traffic</td>
-                  <td class="p-2"></td>
-                  <td class="p-2">70</td>
-                </tr>
-                <tr class="border-t dark:border-zinc-700">
-                  <td class="p-2">00:25</td>
-                  <td class="p-2">01:15</td>
-                  <td class="p-2 font-medium">HDN03 - Evaluate Windows Servers</td>
-                  <td class="p-2"></td>
-                  <td class="p-2">50</td>
-                </tr>
-                <tr class="border-t dark:border-zinc-700">
-                  <td class="p-2">00:25</td>
-                  <td class="p-2">01:15</td>
-                  <td class="p-2 font-medium">HDN02 - Evaluate Linux Servers</td>
-                  <td class="p-2"></td>
-                  <td class="p-2">50</td>
-                </tr>
-                <tr class="border-t dark:border-zinc-700">
-                  <td class="p-2">00:30</td>
-                  <td class="p-2">01:50</td>
-                  <td class="p-2 font-medium">NETW11A - VLAN Attack Concern</td>
-                  <td class="p-2"></td>
-                  <td class="p-2">80</td>
-                </tr>
-                <tr class="border-t dark:border-zinc-700">
-                  <td class="p-2">00:35</td>
-                  <td class="p-2">01:15</td>
-                  <td class="p-2 font-medium">HDN05 - Create a Linux Password Policy</td>
-                  <td class="p-2"></td>
-                  <td class="p-2">40</td>
-                </tr>
-                <tr class="border-t dark:border-zinc-700">
-                  <td class="p-2">00:35</td>
-                  <td class="p-2">01:15</td>
-                  <td class="p-2 font-medium">HDN04 - Password Policy Using GPO</td>
-                  <td class="p-2"></td>
-                  <td class="p-2">40</td>
-                </tr>
-                <tr class="border-t dark:border-zinc-700">
-                  <td class="p-2">00:35</td>
-                  <td class="p-2">01:25</td>
-                  <td class="p-2 font-medium">NETW07T - Secure SNMP</td>
-                  <td class="p-2"></td>
-                  <td class="p-2">50</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </div>
+  <body>
+    <div class="message">haha !!!</div>
   </body>
 </html>

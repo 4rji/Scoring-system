@@ -87,6 +87,8 @@ async fn main() {
         .nest_service("/assets", get_service(ServeDir::new(format!("{}/assets/", app_dir))))
         .route("/injects", get_service(ServeFile::new(format!("{}/injects.html", app_dir))))
         .route("/injects.html", get_service(ServeFile::new(format!("{}/injects.html", app_dir))))
+        .route("/metrohaha", get_service(ServeFile::new(format!("{}/metrohaha.html", app_dir))))
+        .route("/metrohaha.html", get_service(ServeFile::new(format!("{}/metrohaha.html", app_dir))))
         .fallback_service(
             get_service(ServeFile::new(format!("{}/index.html",app_dir))).handle_error(|_| async move {
                 (StatusCode::INTERNAL_SERVER_ERROR, "internal server error")

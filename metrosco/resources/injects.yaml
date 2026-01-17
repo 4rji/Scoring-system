@@ -62,8 +62,8 @@ HDN05 Create a Linux Password Policy:
     Inject ID: HDN05
     Please submit the requested policy.
 HDN04 Password Policy Using GPO:
-  start: 40
-  duration: 40
+  start: 45
+  duration: 50
   markdown: |
     # Password Policy Using GPO
     Inject ID: HDN04
@@ -76,7 +76,7 @@ HFW06 Restrict Internal Cross Network Traffic:
     Inject ID: HFW06
     Please submit the requested report.
 NETW07T Secure SNMP:
-  start: 35
+  start: 50
   duration: 50
   markdown: |
     # Secure SNMP
@@ -88,4 +88,74 @@ NETW11A VLAN Attack Concern:
   markdown: |
     # VLAN Attack Concern
     Inject ID: NETW11A
+    Please submit the requested report.
+BAN01 Legal Disclaimer for Network Access:
+  start: 20
+  duration: 30
+  markdown: |
+    # Legal Disclaimer for Network Access
+    Inject ID: BAN01
+    Please submit the requested report.
+ntp02 Centralized Network Time:
+  start: 40
+  duration: 20
+  markdown: |
+    # Centralized Network Time
+    Inject ID: ntp02
+    Please submit the requested report.
+SVRA12T Configure End-Point Protection Software:
+  start: 35
+  duration: 30
+  markdown: |
+    # Configure End-Point Protection Software
+    Inject ID: SVRA12T
+    Please submit the requested report.
+BCOM02T Document Firewall Security Policy:
+  start: 55
+  duration: 50
+  markdown: |
+    # Document Firewall Security Policy
+    Inject ID: BCOM02T
+    Please submit the requested policy.
+DET01 Server Access Attempts:
+  start: 60
+  duration: 60
+  markdown: |
+    # Server Access Attempts
+    Inject ID: DET01
+    Please submit the requested report.
+END02 End-Point Protection:
+  start: 65
+  duration: 66
+  markdown: |
+    # End-Point Protection
+    Inject ID: END02
+    Please submit the requested report.
+EVAL01T External Perimeter Scan with NMAP:
+  start: 75
+  duration: 50
+  markdown: |
+    # External Perimeter Scan with NMAP
+    Inject ID: EVAL01T
+    Please submit the requested report.
+LINX01T Securing Home Directories on Linux:
+  start: 80
+  duration: 30
+  markdown: |
+    # Securing Home Directories on Linux
+    Inject ID: LINX01T
+    Please submit the requested report.
+MGR01 Top Talkers Report:
+  start: 80
+  duration: 60
+  markdown: |
+    # Top Talkers Report
+    Inject ID: MGR01
+    Please submit the requested report.
+B02-FW Administration Firewalls:
+  start: 80
+  duration: 60
+  markdown: |
+    # Administration Firewalls
+    Inject ID: B02-FW
     Please submit the requested report.
