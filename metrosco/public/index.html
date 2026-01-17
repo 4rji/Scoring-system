@@ -196,6 +196,17 @@
           return `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
         };
 
+        const formatTimeRemaining = (item, elapsedSeconds) => {
+          const secondsUntilStart = item.startSeconds - elapsedSeconds;
+          if (secondsUntilStart > 0) {
+            return `Starts in ${formatCountdown(secondsUntilStart)}`;
+          }
+          const secondsRemaining =
+            item.startSeconds + item.duration * 60 - elapsedSeconds;
+          if (secondsRemaining <= 0) return "Ended";
+          return formatCountdown(secondsRemaining);
+        };
+
         const getVisibleItems = (elapsedSeconds) => {
           return schedule.filter((item) => elapsedSeconds >= item.startSeconds);
         };
@@ -210,7 +221,7 @@
             item.inject,
             item.description,
             String(item.duration),
-            formatCountdown(item.startSeconds + item.duration * 60 - elapsedSeconds),
+            formatTimeRemaining(item, elapsedSeconds),
           ];
 
           cells.forEach((value, index) => {
@@ -234,6 +245,17 @@
             cell.className = "p-2 text-center";
             cell.colSpan = 6;
             cell.textContent = "Click Start Competition to begin.";
+            row.appendChild(cell);
+            tbody.appendChild(row);
+            return;
+          }
+
+          if (schedule.length === 0) {
+            const row = document.createElement("tr");
+            const cell = document.createElement("td");
+            cell.className = "p-2 text-center";
+            cell.colSpan = 6;
+            cell.textContent = "No injects configured.";
             row.appendChild(cell);
             tbody.appendChild(row);
             return;
