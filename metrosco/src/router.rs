@@ -32,6 +32,7 @@ pub fn main_router(state: ConfigState) -> Router<ConfigState> {
         .route("/scores", get(scores))
         .route("/time", get(time))
         .route("/competition", get(competition_status))
+        .route("/competition/injects", get(competition_injects))
         .route("/competition/start", post(start_competition))
         .route("/login", post(login))
         .route("/info", get(scoreboard_info))
@@ -72,6 +73,13 @@ struct CompetitionStatus {
     started_at_ms: Option<u64>,
 }
 
+#[derive(Serialize)]
+struct CompetitionInject {
+    name: String,
+    start: u32,
+    duration: u32,
+}
+
 async fn time(State(state): State<ConfigState>) -> Json<TimeBody> {
     let config = state.read().await;
     let runtime = config.run_time();
@@ -87,6 +95,20 @@ async fn competition_status(State(state): State<ConfigState>) -> Json<Competitio
     Json(CompetitionStatus {
         started_at_ms: config.competition_start_ms(),
     })
+}
+
+async fn competition_injects(State(state): State<ConfigState>) -> Json<Vec<CompetitionInject>> {
+    let config = state.read().await;
+    let injects = config
+        .injects
+        .iter()
+        .map(|inject| CompetitionInject {
+            name: inject.name.clone(),
+            start: inject.start,
+            duration: inject.duration,
+        })
+        .collect();
+    Json(injects)
 }
 
 async fn start_competition(State(state): State<ConfigState>) -> Json<CompetitionStatus> {

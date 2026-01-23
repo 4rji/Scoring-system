@@ -1,0 +1,24 @@
+Start,End,Inject,Duration
+00:01,00:21,INV01 - Holas teolasasdmsadmsa,20
+00:05,00:35,BCOM01T - Network Inventory Management Report,30
+00:15,00:45,DSGN07T - Design Network Isolation Requirement,30
+00:20,00:50,BAN01 - Legal Disclaimer for Network Access,30
+00:20,01:05,BCOM06A - Memo to Explain FW Features to Customer,45
+00:22,01:32,HFW06 - Restrict Internal Cross Network Traffic,70
+00:25,01:15,HDN02 - Evaluate Linux Servers,50
+00:25,01:15,HDN03 - Evaluate Windows Servers,50
+00:30,01:50,NETW11A - VLAN Attack Concern,80
+00:35,01:05,SVRA12T - Configure End-Point Protection Software,30
+00:40,01:20,HDN05 - Create a Linux Password Policy,40
+00:40,01:00,ntp02 - Centralized Network Time,20
+00:45,01:35,END01 - Malware Mitigation,50
+00:45,01:35,HDN04 - Password Policy Using GPO,50
+00:50,01:40,NETW07T - Secure SNMP,50
+00:55,01:45,BCOM02T - Document Firewall Security Policy,50
+00:55,01:45,DSGN02T - Understanding Network Data Flows,50
+01:00,02:00,DET01 - Server Access Attempts,60
+01:05,02:11,END02 - End-Point Protection,66
+01:15,02:05,EVAL01T - External Perimeter Scan with NMAP,50
+01:20,02:20,B02-FW - Administration Firewalls,60
+01:20,01:50,LINX01T - Securing Home Directories on Linux,30
+01:20,02:20,MGR01 - Top Talkers Report,60

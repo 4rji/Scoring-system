@@ -17,173 +17,32 @@
     <div id="root"></div>
     <script>
       (function () {
-        const schedule = [
-          {
-            start: "00:01",
-            end: "00:21",
-            inject: "INV01 - Inventory Report",
-            description: "",
-            duration: 20,
-          },
-          {
-            start: "00:05",
-            end: "00:35",
-            inject: "BCOM01T - Network Inventory Management Report",
-            description: "",
-            duration: 30,
-          },
-          {
-            start: "00:15",
-            end: "00:45",
-            inject: "DSGN07T - Design Network Isolation Requirement",
-            description: "",
-            duration: 30,
-          },
-          {
-            start: "00:20",
-            end: "00:50",
-            inject: "BAN01 - Legal Disclaimer for Network Access",
-            description: "",
-            duration: 30,
-          },
-          {
-            start: "00:20",
-            end: "01:05",
-            inject: "BCOM06A - Memo to Explain FW Features to Customer",
-            description: "",
-            duration: 45,
-          },
-          {
-            start: "00:22",
-            end: "01:32",
-            inject: "HFW06 - Restrict Internal Cross Network Traffic",
-            description: "",
-            duration: 70,
-          },
-          {
-            start: "00:25",
-            end: "01:15",
-            inject: "HDN02 - Evaluate Linux Servers",
-            description: "",
-            duration: 50,
-          },
-          {
-            start: "00:25",
-            end: "01:15",
-            inject: "HDN03 - Evaluate Windows Servers",
-            description: "",
-            duration: 50,
-          },
-          {
-            start: "00:30",
-            end: "01:50",
-            inject: "NETW11A - VLAN Attack Concern",
-            description: "",
-            duration: 80,
-          },
-          {
-            start: "00:35",
-            end: "01:05",
-            inject: "SVRA12T - Configure End-Point Protection Software",
-            description: "",
-            duration: 30,
-          },
-          {
-            start: "00:40",
-            end: "01:20",
-            inject: "HDN05 - Create a Linux Password Policy",
-            description: "",
-            duration: 40,
-          },
-          {
-            start: "00:40",
-            end: "01:00",
-            inject: "ntp02 - Centralized Network Time",
-            description: "",
-            duration: 20,
-          },
-          {
-            start: "00:45",
-            end: "01:35",
-            inject: "END01 - Malware Mitigation",
-            description: "",
-            duration: 50,
-          },
-          {
-            start: "00:45",
-            end: "01:35",
-            inject: "HDN04 - Password Policy Using GPO",
-            description: "",
-            duration: 50,
-          },
-          {
-            start: "00:50",
-            end: "01:40",
-            inject: "NETW07T - Secure SNMP",
-            description: "",
-            duration: 50,
-          },
-          {
-            start: "00:55",
-            end: "01:45",
-            inject: "BCOM02T - Document Firewall Security Policy",
-            description: "",
-            duration: 50,
-          },
-          {
-            start: "00:55",
-            end: "01:45",
-            inject: "DSGN02T - Understanding Network Data Flows",
-            description: "",
-            duration: 50,
-          },
-          {
-            start: "01:00",
-            end: "02:00",
-            inject: "DET01 - Server Access Attempts",
-            description: "",
-            duration: 60,
-          },
-          {
-            start: "01:05",
-            end: "02:11",
-            inject: "END02 - End-Point Protection",
-            description: "",
-            duration: 66,
-          },
-          {
-            start: "01:15",
-            end: "02:05",
-            inject: "EVAL01T - External Perimeter Scan with NMAP",
-            description: "",
-            duration: 50,
-          },
-          {
-            start: "01:20",
-            end: "01:50",
-            inject: "LINX01T - Securing Home Directories on Linux",
-            description: "",
-            duration: 30,
-          },
-          {
-            start: "01:20",
-            end: "02:20",
-            inject: "MGR01 - Top Talkers Report",
-            description: "",
-            duration: 60,
-          },
-          {
-            start: "01:20",
-            end: "02:20",
-            inject: "B02-FW - Administration Firewalls",
-            description: "",
-            duration: 60,
-          },
-        ].map((item) => {
-          const parts = item.start.split(":").map(Number);
-          const seconds = (parts[0] * 60 + parts[1]) * 60;
-          return Object.assign({ startSeconds: seconds }, item);
-        });
+        let schedule = [];
+
+        const formatClock = (minutes) => {
+          const hours = Math.floor(minutes / 60);
+          const mins = minutes % 60;
+          return `${hours.toString().padStart(2, "0")}:${mins
+            .toString()
+            .padStart(2, "0")}`;
+        };
+
+        const hydrateSchedule = (injects) => {
+          schedule = injects
+            .map((inject) => {
+              const startMinutes = Number(inject.start || 0);
+              const duration = Number(inject.duration || 0);
+              const endMinutes = startMinutes + duration;
+              return {
+                start: formatClock(startMinutes),
+                end: formatClock(endMinutes),
+                inject: inject.name,
+                duration,
+                startSeconds: startMinutes * 60,
+              };
+            })
+            .sort((a, b) => a.startSeconds - b.startSeconds);
+        };
 
         const containerId = "inject-schedule";
         let startedAt = null;
@@ -219,7 +78,6 @@
             item.start,
             item.end,
             item.inject,
-            item.description,
             String(item.duration),
             formatTimeRemaining(item, elapsedSeconds),
           ];
@@ -243,7 +101,7 @@
             const row = document.createElement("tr");
             const cell = document.createElement("td");
             cell.className = "p-2 text-center";
-            cell.colSpan = 6;
+            cell.colSpan = 5;
             cell.textContent = "Click Start Competition to begin.";
             row.appendChild(cell);
             tbody.appendChild(row);
@@ -254,7 +112,7 @@
             const row = document.createElement("tr");
             const cell = document.createElement("td");
             cell.className = "p-2 text-center";
-            cell.colSpan = 6;
+            cell.colSpan = 5;
             cell.textContent = "No injects configured.";
             row.appendChild(cell);
             tbody.appendChild(row);
@@ -266,7 +124,7 @@
             const row = document.createElement("tr");
             const cell = document.createElement("td");
             cell.className = "p-2 text-center";
-            cell.colSpan = 6;
+            cell.colSpan = 5;
             cell.textContent = "Waiting for the first inject...";
             row.appendChild(cell);
             tbody.appendChild(row);
@@ -333,7 +191,6 @@
                   <th class="p-2">Start</th>
                   <th class="p-2">End</th>
                   <th class="p-2">Inject</th>
-                  <th class="p-2">Short description (EN)</th>
                   <th class="p-2">Duration</th>
                   <th class="p-2">Time Remaining</th>
                 </tr>
@@ -364,6 +221,15 @@
               const data = await res.json();
               if (data && data.started_at_ms) {
                 startedAt = data.started_at_ms;
+              }
+            }
+            const scheduleRes = await fetch("/api/competition/injects", {
+              credentials: "include",
+            });
+            if (scheduleRes.ok) {
+              const injects = await scheduleRes.json();
+              if (Array.isArray(injects)) {
+                hydrateSchedule(injects);
               }
             }
           } catch (e) {
