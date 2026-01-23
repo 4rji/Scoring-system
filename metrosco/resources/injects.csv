@@ -1,22 +1,30 @@
 Start,End,Inject,Duration
-00:00,00:22,HDN02-A Evaluate Linux Servers,22
-00:00,00:22,HDN03-A Evaluate Windows Servers,22
-00:04,00:26,INV01 - Inventory Report,22
-00:05,00:27,DSGN15A- Preserve Network Integrity in PeakLoads 24,22
-00:08,00:30,BCOM01T - Network Inventory Management Report,22
-00:10,00:32,HDN05-B Create a Linux PasswordPolicy,22
-00:10,00:32,HDN04-B Windows Password Policy UsingGPO,22
-00:13,00:35,DSGN07T - Design Network Isolation Requirement,22
-00:15,00:37,EVAL01T- External PerimeterScan 1,22
-00:20,00:42,LINX01T- Securing Home Directories on Linuxcopy,22
-00:25,00:47,HFW04-A Firewall Backup,22
-00:27,00:49,BAN01 - Legal Disclaimer for Network Access,22
-00:30,00:52,WINS01T- Verify Use of NetEBUI,22
-00:35,00:57,NETW11A- VLAN Attack Concern,22
-00:38,01:00,DET01 - Server Access Attempts,22
-00:40,01:02,LINX04A- Protect Servers from UnnecessaryPackets,22
-00:50,01:12,WINS01T- Verify Use of NetEBUI 20,22
-01:00,01:22,LINX09T- Install Power Shell onLinux 17,22
-01:10,01:32,WINS04A- Protect Servers from UnnecessaryPackets,22
-01:20,01:42,LINX10T- Script to Monitor Incomplete TCPConnections 6,22
-01:30,01:52,WINS05T- Script to Monitor Disk Space 18,22
+00:00,00:22,HDN02-A Evaluate Linux Servers,40
+00:00,00:22,HDN03-A Evaluate Windows Servers,40
+00:05,00:27,DSGN15A- Preserve Network Integrity in PeakLoads ,40
+00:08,00:30,BCOM01T - Network Inventory Management Report,
+00:10,00:32,HDN05-B Create a Linux PasswordPolicy,32
+00:10,00:32,HDN04-B Windows Password Policy UsingGPO,36
+00:13,00:35,DSGN07T - Design Network Isolation Requirement,60
+00:15,00:37,EVAL01T- External PerimeterScan 1,40
+00:20,00:42,LINX01T- Securing Home Directories on Linuxcopy,60
+00:25,00:47,HFW04-A Firewall Backup,50
+00:27,00:49,BAN01 - Legal Disclaimer for Network Access,40
+00:30,00:52,WINS01T- Verify Use of NetEBUI,60
+00:35,00:57,NETW11A- VLAN Attack Concern,40
+00:38,01:00,DET01 - Server Access Attempts,60
+00:40,01:02,LINX04A- Protect Servers from UnnecessaryPackets,50
+00:50,01:12,WINS01T- Verify Use of NetEBUI ,55
+01:00,01:22,LINX09T- Install Power Shell onLinux, 40
+01:10,01:32,WINS04A- Protect Servers from UnnecessaryPackets,60
+01:20,01:42,LINX10T- Script to Monitor Incomplete TCPConnections,60
+01:30,01:52,WINS05T- Script to Monitor Disk Space,35
+01:40,02:30,END01 - Malware Mitigation,50
+01:50,02:40,HDN04 - Password Policy Using GPO,50
+02:00,02:45,BCOM06A - Memo to Explain FW Features to Customer,45
+02:00,02:50,NETW07T - Secure SNMP,50
+02:10,03:00,BCOM02T - Document Firewall Security Policy,50
+02:20,03:10,DSGN02T - Understanding Network Data Flows,50
+02:30,03:36,END02 - End-Point Protection,66
+02:40,03:40,MGR01 - Top Talkers Report,60
+02:45,03:15,SVRA12T - Configure End-Point Protection Software,30
