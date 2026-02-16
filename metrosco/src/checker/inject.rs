@@ -4,6 +4,7 @@ use uuid::Uuid;
 use handlebars::Handlebars;
 use markdown::to_html;
 
+use csv::Trim;
 use serde::{Deserialize, Serialize};
 use tracing::{debug, error, info};
 
@@ -57,23 +58,6 @@ impl Inject {
             !f.is_empty()
         } else {
             true
-        }
-    }
-    fn from_yaml(name: String, yaml: YAMLInject) -> Self {
-        Self {
-            uuid: Uuid::new_v4(),
-            name,
-            markdown: yaml.markdown,
-            start: yaml.start,
-            duration: yaml.duration.unwrap_or(1),
-            side_effects: yaml.side_effects.unwrap_or(vec![]),
-            completed: false,
-            file_type: if yaml.no_submit {
-                Some(vec![])
-            } else {
-                yaml.file_types
-            },
-            sticky: yaml.duration.is_none(),
         }
     }
     fn format_name(&self) -> String {
@@ -133,19 +117,17 @@ pub enum ResponseError {
 }
 
 pub fn load_injects() -> Vec<Inject> {
-    let inject_file = std::env::var("SB_INJECTS").unwrap_or("injects.yaml".to_string());
-    let Ok(file) = fs::read_to_string(format!("{}/{}", resource_location(), inject_file)) else {
-        return Vec::new();
-    };
-    let yaml_tree: BTreeMap<String, YAMLInject> =
-        serde_yaml::from_str(&file).expect(format!("{} is not valid", inject_file).as_str());
-    let injects: Vec<Inject> = yaml_tree
-        .into_iter()
-        .map(|(name, inject)| Inject::from_yaml(name, inject))
-        .collect();
-    info!("Loaded {} injects", injects.len());
-    debug!("Injects: {:?}", injects);
-    injects
+    let inject_file = std::env::var("SB_INJECTS").unwrap_or("injects.csv".to_string());
+    let inject_path = format!("{}/{}", resource_location(), inject_file);
+
+    if let Ok(injects) = load_injects_csv(&inject_path) {
+        info!("Loaded {} injects", injects.len());
+        debug!("Injects: {:?}", injects);
+        return injects;
+    }
+
+    error!("Failed to load injects from {}", inject_path);
+    Vec::new()
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
@@ -166,15 +148,170 @@ impl SideEffect {
 }
 
 #[derive(Deserialize)]
-struct YAMLInject {
-    markdown: String,
-    file_types: Option<Vec<String>>,
-    #[serde(default)]
-    start: u32,
-    duration: Option<u32>,
-    side_effects: Option<Vec<SideEffect>>,
-    #[serde(default)]
-    no_submit: bool,
+struct CSVInject {
+    #[serde(rename = "Start")]
+    start: String,
+    #[serde(rename = "End")]
+    end: Option<String>,
+    #[serde(rename = "Inject")]
+    inject: String,
+    #[serde(rename = "Duration")]
+    duration: Option<String>,
+    #[serde(rename = "Markdown")]
+    markdown: Option<String>,
+    #[serde(rename = "File Types")]
+    file_types: Option<String>,
+    #[serde(rename = "Side Effects")]
+    side_effects: Option<String>,
+    #[serde(rename = "No Submit")]
+    no_submit: Option<String>,
+    #[serde(rename = "Sticky")]
+    sticky: Option<String>,
+}
+
+fn load_injects_csv(path: &str) -> Result<Vec<Inject>, ()> {
+    let mut rdr = csv::ReaderBuilder::new()
+        .flexible(true)
+        .trim(Trim::All)
+        .from_path(path)
+        .map_err(|_| ())?;
+    let mut injects = Vec::new();
+    for result in rdr.deserialize() {
+        let row: CSVInject = match result {
+            Ok(row) => row,
+            Err(err) => {
+                error!("Invalid CSV row in {}: {}", path, err);
+                continue;
+            }
+        };
+        let name = row.inject.trim().to_string();
+        if name.is_empty() {
+            continue;
+        }
+        let start = match parse_minutes(&row.start) {
+            Some(val) => val,
+            None => {
+                error!("Invalid start time '{}' in {}", row.start, path);
+                continue;
+            }
+        };
+        let duration = parse_duration_minutes(&row.duration, &row.end, start).unwrap_or(1);
+        let sticky = row
+            .sticky
+            .as_deref()
+            .map(parse_bool)
+            .unwrap_or(row.duration.as_ref().map(|d| d.trim().is_empty()).unwrap_or(false));
+        let markdown = row
+            .markdown
+            .filter(|m| !m.trim().is_empty())
+            .unwrap_or_else(|| default_markdown(&name));
+        let side_effects = row
+            .side_effects
+            .as_deref()
+            .and_then(|raw| {
+                if raw.trim().is_empty() {
+                    None
+                } else {
+                    serde_yaml::from_str::<Vec<SideEffect>>(raw).ok()
+                }
+            })
+            .unwrap_or_else(Vec::new);
+        let file_type = if parse_bool(row.no_submit.as_deref().unwrap_or("")) {
+            Some(vec![])
+        } else {
+            parse_file_types(row.file_types.as_deref())
+        };
+
+        injects.push(Inject {
+            uuid: Uuid::new_v4(),
+            name,
+            markdown,
+            start,
+            duration,
+            side_effects,
+            completed: false,
+            file_type,
+            sticky,
+        });
+    }
+    Ok(injects)
+}
+
+fn parse_minutes(value: &str) -> Option<u32> {
+    let trimmed = value.trim();
+    if trimmed.is_empty() {
+        return None;
+    }
+    if let Ok(minutes) = trimmed.parse::<u32>() {
+        return Some(minutes);
+    }
+    let mut parts = trimmed.split(':').collect::<Vec<_>>();
+    if parts.len() < 2 {
+        return None;
+    }
+    let minutes_part = parts.pop()?;
+    let hours_part = parts.pop()?;
+    let hours = hours_part.parse::<u32>().ok()?;
+    let minutes = minutes_part.parse::<u32>().ok()?;
+    Some(hours.saturating_mul(60).saturating_add(minutes))
+}
+
+fn parse_duration_minutes(duration: &Option<String>, end: &Option<String>, start: u32) -> Option<u32> {
+    if let Some(value) = duration.as_ref().map(|v| v.trim()).filter(|v| !v.is_empty()) {
+        if let Ok(minutes) = value.parse::<u32>() {
+            return Some(minutes.max(1));
+        }
+    }
+    if let Some(end_val) = end.as_ref().map(|v| v.trim()).filter(|v| !v.is_empty()) {
+        if let Some(end_minutes) = parse_minutes(end_val) {
+            if end_minutes > start {
+                return Some(end_minutes - start);
+            }
+        }
+    }
+    None
+}
+
+fn parse_bool(value: &str) -> bool {
+    matches!(
+        value.trim().to_lowercase().as_str(),
+        "1" | "true" | "yes" | "y"
+    )
+}
+
+fn parse_file_types(value: Option<&str>) -> Option<Vec<String>> {
+    let raw = value?.trim();
+    if raw.is_empty() {
+        return None;
+    }
+    let parts: Vec<String> = raw
+        .split(',')
+        .map(|part| part.trim().to_string())
+        .filter(|part| !part.is_empty())
+        .collect();
+    if parts.is_empty() {
+        None
+    } else {
+        Some(parts)
+    }
+}
+
+fn default_markdown(name: &str) -> String {
+    let (id, title) = name
+        .split_once(" - ")
+        .map(|(id, title)| (id.trim(), title.trim()))
+        .unwrap_or(("", name.trim()));
+    let mut markdown = String::new();
+    markdown.push_str("# ");
+    markdown.push_str(if title.is_empty() { name.trim() } else { title });
+    markdown.push('\n');
+    if !id.is_empty() {
+        markdown.push_str("Inject ID: ");
+        markdown.push_str(id);
+        markdown.push('\n');
+    }
+    markdown.push_str("Please submit the requested report.\n");
+    markdown
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]

@@ -44,50 +44,23 @@ website: WEB/curlfind.sh $WEBSITE "This is so cool"
 ```
 In the background, the scoreboard runs each checker multiple times, once for each team. It swaps out the environment it uses depending on the team so that SSH_SERVER or whatever you declare will be replaced with the correct string for that team.
 
-# Customizing your injects.yaml
-The injects.yaml file is the only not required file of the main configs. It is also the most involved. It is formatted in the same manner where
-you have a name followed by its values, but there are many more values.
-- start: How many minutes into the game the inject should start. By default, it starts at the beginning of the game.
-- duration: How many minutes the inject should last. If not present, the inject will be marked as sticky and will not end.
-- file_types: A list of file extensions that the inject will accept as submissions. If not present, the inject will accept any file type.
-- no_submit: A boolean. If true, the inject will not accept submissions. False by default.
-- markdown: A string of markdown that will be rendered as the inject's description. It as accepts team environment variables in the form {{ VARIABLE_NAME }}.
-- side_effects: A special list of commands that will activate when the inject ends.
+# Customizing your injects.csv
+Injects are now configured in the CSV table at `resources/injects.csv`. Each row is an inject.
+- Start: Minutes into the game the inject should start (HH:MM or minutes).
+- End: Optional; if omitted, the app will compute it from Start + Duration.
+- Inject: The inject name shown in the UI.
+- Duration: How many minutes the inject should last.
+- Markdown (optional): Overrides the default inject description.
+- File Types (optional): Comma-separated file extensions.
+- No Submit (optional): true/false; if true, submissions are not allowed.
+- Sticky (optional): true/false; if true, the inject does not end.
+- Side Effects (optional): YAML/JSON list of side effects.
 
-An example is given below.
-```yaml
-# example injects.yaml
-
-# Normal inject accepting text files
-Inject_1:
-    start: 30
-    duration: 60
-    file_types:
-        - .txt
-        - .docx
-        - .pdf
-    markdown: |
-        # Your First Inject
-        You will submit a text file containing a flag you can find in
-        {{ TEAM_FLAG_SERVER }}.
-        It's funny writing markdown in yaml in markdown.
-        **Good Luck!**
-# A Sticky Notification
-# You can create links as well, which can be useful for downloading files.
-Inject_2:
-    no_submit: true
-    markdown: |
-        # Welcome to the Game
-        You're passwords are stored here:
-        [Passwords](https://{{ SB_URL }}//downloads/passwords/{{ TEAM_NAME }}.csv)
-# A Side Effect Inject
-# This inject will:
-#  1. Delete the service named SSH
-#  2. Create a new service called HSS
-#  3. Edit the Website service to be called "Cool Website"
-Inject_3:
-    start: 20
-    duration: 10
+Example:
+```csv
+Start,End,Inject,Duration
+00:10,00:32,Example Inject,22
+```
     markdown: |
         # Get Ready for the Scoreboard to Change!
         You're website better be cool by the time this timer
@@ -134,7 +107,7 @@ Mostly just where it will look for different files.
 - SB_PORT: What port the scoreboard will listen on. 8000 by default.
 - SB_TEAMS: The name of the teams config. Defaults to teams.yaml
 - SB_SERVICES: The name of the services config. Defaults to services.yaml
-- SB_INJECTS: The name of the injects config. Defaults to injects.yaml
+- SB_INJECTS: The name of the injects config. Defaults to injects.csv
 - SB_APP_DIR: Where the React SPA is located. By default it is the public folder in your current working directory.
 - SB_ADMIN_PASSWORD: The password for the admin account on the scoreboard. Not set by default.
 
