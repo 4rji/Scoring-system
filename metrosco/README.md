@@ -47,7 +47,6 @@ In the background, the scoreboard runs each checker multiple times, once for eac
 # Customizing your injects.csv
 Injects are now configured in the CSV table at `resources/injects.csv`. Each row is an inject.
 - Start: Minutes into the game the inject should start (HH:MM or minutes).
-- End: Optional; if omitted, the app will compute it from Start + Duration.
 - Inject: The inject name shown in the UI.
 - Duration: How many minutes the inject should last.
 - Markdown (optional): Overrides the default inject description.
@@ -58,8 +57,8 @@ Injects are now configured in the CSV table at `resources/injects.csv`. Each row
 
 Example:
 ```csv
-Start,End,Inject,Duration
-00:10,00:32,Example Inject,22
+Start,Inject,Duration
+00:10,Example Inject,22
 ```
     markdown: |
         # Get Ready for the Scoreboard to Change!
