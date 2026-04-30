@@ -1,10 +1,27 @@
 export interface ScoreWrapper {
-    teams: [{
+    teams: {
         name: string,
         score: number,
         ups: boolean[]
-    }],
+    }[],
     services: string[]
+}
+
+export interface ReachabilityStatus {
+    name: string,
+    ip: string,
+    method: string,
+    reachable: boolean,
+}
+
+export interface CompetitionStatus {
+    started_at_ms: number | null,
+}
+
+export interface CompetitionInject {
+    name: string,
+    start: number,
+    duration: number,
 }
 
 export interface Score {

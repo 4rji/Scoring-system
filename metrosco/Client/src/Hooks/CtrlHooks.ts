@@ -5,6 +5,8 @@ import { useMutation, useQuery, useQueryClient } from "react-query";
 import { useNavigate, useLocation } from "react-router-dom";
 import {
     AdminInfo,
+    CompetitionInject,
+    CompetitionStatus,
     CreateInject,
     EnvPayload,
     Inject,
@@ -12,6 +14,7 @@ import {
     InjectRequest,
     PasswordBody,
     PasswordPayload,
+    ReachabilityStatus,
     SavePayload,
     SaveWrapper,
     ScoreWrapper,
@@ -52,6 +55,80 @@ export const useScore = () => {
         scoreError: error,
         scoreLoading: isLoading,
         scoreUpdatedAt: dataUpdatedAt,
+    };
+};
+
+export const useReachability = () => {
+    const { data, error, isLoading } = useQuery(
+        "reachability",
+        async () => {
+            const res = await axios.get("/reachability");
+            return res.data;
+        },
+        {
+            refetchInterval: SCORE_REFETCH,
+        }
+    );
+    return {
+        reachability: (data || []) as ReachabilityStatus[],
+        reachabilityError: error,
+        reachabilityLoading: isLoading,
+    };
+};
+
+export const useCompetitionStatus = () => {
+    const { data, error, isLoading } = useQuery(
+        "competition",
+        async () => {
+            const res = await axios.get("/competition");
+            return res.data;
+        },
+        {
+            refetchInterval: SCORE_REFETCH,
+        }
+    );
+    return {
+        competition: data as CompetitionStatus | undefined,
+        competitionError: error,
+        competitionLoading: isLoading,
+    };
+};
+
+export const useCompetitionInjects = () => {
+    const { data, error, isLoading } = useQuery(
+        "competitionInjects",
+        async () => {
+            const res = await axios.get("/competition/injects");
+            return res.data;
+        },
+        {
+            refetchInterval: INJECT_REFETCH,
+        }
+    );
+    return {
+        competitionInjects: (data || []) as CompetitionInject[],
+        competitionInjectsError: error,
+        competitionInjectsLoading: isLoading,
+    };
+};
+
+export const useStartCompetition = () => {
+    const queryClient = useQueryClient();
+    const { mutate, isLoading, error } = useMutation(
+        async () => {
+            const res = await axios.post("/competition/start");
+            return res.data;
+        },
+        {
+            onSuccess: () => {
+                queryClient.invalidateQueries("competition");
+            },
+        }
+    );
+    return {
+        startCompetition: mutate,
+        startCompetitionError: error,
+        startCompetitionLoading: isLoading,
     };
 };
 
