@@ -1,30 +1,17 @@
 Start,Inject,Duration
-00:00,HDN02-A Evaluate Linux Servers,40
-00:00,HDN03-A Evaluate Windows Servers,40
-00:05,DSGN15A- Preserve Network Integrity in PeakLoads ,40
-00:08,BCOM01T - Network Inventory Management Report,
-00:10,HDN05-B Create a Linux PasswordPolicy,32
-00:10,HDN04-B Windows Password Policy UsingGPO,36
-00:13,DSGN07T - Design Network Isolation Requirement,60
-00:15,EVAL01T- External PerimeterScan 1,40
-00:20,LINX01T- Securing Home Directories on Linuxcopy,60
-00:25,HFW04-A Firewall Backup,50
-00:27,BAN01 - Legal Disclaimer for Network Access,40
-00:30,WINS01T- Verify Use of NetEBUI,60
-00:35,NETW11A- VLAN Attack Concern,40
-00:38,DET01 - Server Access Attempts,60
-00:40,LINX04A- Protect Servers from UnnecessaryPackets,50
-00:50,WINS01T- Verify Use of NetEBUI ,55
-01:00,LINX09T- Install Power Shell onLinux, 40
-01:10,WINS04A- Protect Servers from UnnecessaryPackets,60
-01:20,LINX10T- Script to Monitor Incomplete TCPConnections,60
-01:30,WINS05T- Script to Monitor Disk Space,35
-01:40,END01 - Malware Mitigation,50
-01:50,HDN04 - Password Policy Using GPO,50
-02:00,BCOM06A - Memo to Explain FW Features to Customer,45
-02:00,NETW07T - Secure SNMP,50
-02:10,BCOM02T - Document Firewall Security Policy,50
-02:20,DSGN02T - Understanding Network Data Flows,50
-02:30,END02 - End-Point Protection,66
-02:40,MGR01 - Top Talkers Report,60
-02:45,SVRA12T - Configure End-Point Protection Software,30
+00:01,BCOM05T - Memo Outlining DRP Resource Needs,30
+00:03,DSGN14A - Incident Response Procedure for Web Site Defacement,25
+00:07,EVAL05T - Assess the Vulnerabilities of Internal Devices,30
+00:10,TOOL07T - Perimeter Firewall Setup,22
+00:18,DSGN15A - Preserve Network Integrity in Peak Loads,30
+00:25,TOOL11T - Examine Address Translation Sessions on Firewall,44
+00:30,WINS05T - Script to Monitor Disk Space,24
+00:40,LEGP09A- Response to Breach,40
+00:35,LINX10T - Develop Script to Monitor for Incomplete TCP Connections,30
+00:34,NETW12A - Verify Default Gateway,30
+00:40,TOOL12T - Configure SSL Decryption on PA Firewall,50
+00:45,ORGR01T - Memo Analyzing Skills in Context of Needs,30
+00:50,ORGE04T - Write a Job Description for HR,30
+01:00,EVAL02T - Evaluate Exposed Services of Each Server with NMAP,30
+01:00,SVRA01T - Configure Network Defensive Features,30
+01:01,END ,30
