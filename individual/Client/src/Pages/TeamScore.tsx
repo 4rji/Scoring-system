@@ -13,11 +13,13 @@ const Scoreboard = () => {
   const serviceDescriptions: Record<string, string> = {
     AD: "Anonymous LDAP query to the domain controller",
     DNS: "DNS lookup for provided record via specified server",
-    FTP: "FTP login and directory listing",
+    FTP: "FTP server sends its 220 banner",
     WEB: "Web server answers with a status below 500",
-    SSH: "SSH server answers",
-    SMTP: "STARTTLS login and send probe email",
-    POP3: "POP3 SSL login check",
+    HTTPS: "HTTPS server answers with a status below 500",
+    SSH: "SSH server sends its banner",
+    SMTP: "SMTP server sends its 220 banner",
+    IMAP: "IMAP server sends its * OK banner",
+    POP3: "POP3 server sends its +OK banner",
   };
   return (
     <div className="w-10/12 m-auto my-4">

@@ -13,27 +13,33 @@ import { formatDate } from "../util";
 const serviceDescriptions: Record<string, string> = {
   AD: "TCP 389: Anonymous LDAP query",
   DNS: "UDP/TCP 53: Resolve record via participant's DNS server",
-  FTP: "TCP 21: FTP login then directory listing",
-  WEB: "TCP 80/443: HTTP GET answers below 500",
-  SSH: "TCP 22: SSH server answers",
-  SMTP: "TCP 587: SMTP AUTH + STARTTLS + send probe mail",
-  POP3: "TCP 995: POP3S login handshake",
+  FTP: "TCP 21: FTP 220 banner",
+  WEB: "TCP 80: HTTP GET answers below 500",
+  HTTPS: "TCP 443: HTTPS GET answers below 500",
+  SSH: "TCP 22: SSH banner",
+  SMTP: "TCP 25: SMTP 220 banner",
+  IMAP: "TCP 143: IMAP * OK banner",
+  POP3: "TCP 110: POP3 +OK banner",
 };
 
-const ReachabilityBar = () => {
+const panelClass =
+  "rounded-xl border border-zinc-700 bg-zinc-800 p-3 shadow-md";
+
+const OnlinePanel = () => {
   const { reachability, reachabilityLoading, reachabilityError } =
     useReachability();
 
-  if (reachabilityLoading || reachabilityError || reachability.length === 0) {
-    return null;
-  }
-
-  return (
-    <section className="border-y border-zinc-700 bg-zinc-800 py-4">
-      <h2 className="text-center text-2xl font-extrabold">
-        Participant hosts
-      </h2>
-      <div className="mt-2 flex flex-wrap justify-center gap-x-8 gap-y-3">
+  const renderBody = () => {
+    if (reachabilityLoading) return <p className="text-center">Loading...</p>;
+    if (reachabilityError) return <p className="text-center">Error!</p>;
+    if (reachability.length === 0)
+      return (
+        <p className="text-center text-sm text-zinc-400">
+          No participant has an IP configured.
+        </p>
+      );
+    return (
+      <div className="flex flex-wrap justify-center gap-x-8 gap-y-3">
         {reachability.map((status) => (
           <div
             className="flex min-w-[5rem] flex-col items-center"
@@ -59,6 +65,43 @@ const ReachabilityBar = () => {
           </div>
         ))}
       </div>
+    );
+  };
+
+  return (
+    <section className={panelClass}>
+      <h2 className="mb-2 text-center text-2xl font-extrabold">Online</h2>
+      {renderBody()}
+    </section>
+  );
+};
+
+const Leaderboard = () => {
+  const { data, scoreLoading, scoreError } = useScore();
+  return (
+    <section className={panelClass}>
+      <h2 className="mb-2 text-center text-2xl font-extrabold">Leaderboard</h2>
+      {scoreLoading || scoreError ? (
+        <p className="text-center">{scoreLoading ? "Loading..." : "Error!"}</p>
+      ) : (
+        <table className="mx-auto table-auto">
+          <tbody>
+            {data.teams
+              .concat()
+              .sort((a, b) => b.score - a.score)
+              .map((team, i) => (
+                <tr className="text-xl" key={"Leader" + team.name}>
+                  <td className="font-medium">
+                    <Link to={"/team/" + team.name}>
+                      {i + 1}. {team.name}:
+                    </Link>
+                  </td>
+                  <td className="px-2">{team.score}</td>
+                </tr>
+              ))}
+          </tbody>
+        </table>
+      )}
     </section>
   );
 };
@@ -303,31 +346,6 @@ const InjectSchedule = () => {
   );
 };
 
-const Leaderboard = () => {
-  const { data, scoreLoading, scoreError } = useScore();
-  if (scoreLoading || scoreError) return null;
-  let teams = data.teams.concat();
-  return (
-    <section className="mx-4 mb-5 rounded-xl border border-zinc-700 bg-zinc-800 p-2 shadow-md">
-      <h2 className="text-3xl font-bold">Leaderboard:</h2>
-      <table className="table-auto">
-        <tbody>
-          {teams
-            .sort((a, b) => {
-              return b.score - a.score;
-            })
-            .map((team,i) => (
-              <tr className="text-xl" key={"Leader" + team.name}>
-                <td className="font-medium"><Link to={"/team/"+team.name}>{i+1}. {team.name}:</Link></td>
-                <td className="px-2">{team.score}</td>
-              </tr>
-            ))}
-        </tbody>
-      </table>
-    </section>
-  );
-};
-
 function App() {
   return (
     <div className="min-h-screen w-full bg-zinc-900 text-zinc-100">
@@ -336,10 +354,12 @@ function App() {
           Metro CCDC Individual Scoreboard {import.meta.env.DEV ? "(DEV)" : ""}
         </h1>
       </header>
-      <ReachabilityBar />
+      <div className="grid gap-4 px-4 pt-5 md:grid-cols-2">
+        <OnlinePanel />
+        <Leaderboard />
+      </div>
       <Scoreboard />
       <InjectSchedule />
-      <Leaderboard />
     </div>
   );
 }

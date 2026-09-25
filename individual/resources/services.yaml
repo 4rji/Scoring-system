@@ -3,10 +3,18 @@
 # Cada participante elige cuáles le aplican con la variable SERVICES en
 # teams.yaml; a los demás no se les ejecuta el checker. Las variables ($AD_HOST,
 # $WEB_URL, ...) salen del bloque de cada participante en teams.yaml.
+# ${VAR:-x} usa x cuando el participante no define VAR.
 AD: AD/nologin.sh $AD_HOST
 DNS: DNS/lookup.sh $DNS_RECORD $DNS_SERVER
-FTP: FTP/login.sh $FTP_HOST $FTP_USER:$FTP_PASS
+FTP: ./banner.sh $FTP_HOST ${FTP_PORT:-21} '^220'
 WEB: WEB/http_up.sh $WEB_URL
-SSH: SSH/nologin.sh $SSH_HOST
-SMTP: MAIL/smtp_check.py $SMTP_HOST $SMTP_PORT $SMTP_USER $SMTP_PASS $SMTP_FROM $SMTP_TO --starttls
-POP3: MAIL/pop3_check.py $POP3_HOST $POP3_PORT $POP3_USER $POP3_PASS --ssl
+HTTPS: WEB/http_up.sh $HTTPS_URL
+SSH: ./banner.sh $SSH_HOST ${SSH_PORT:-22} '^SSH-'
+SMTP: ./banner.sh $SMTP_HOST ${SMTP_PORT:-25} '^220'
+IMAP: ./banner.sh $IMAP_HOST ${IMAP_PORT:-143} '^\* OK'
+POP3: ./banner.sh $POP3_HOST ${POP3_PORT:-110} '^\+OK'
+# Versiones con login (necesitan usuario/contraseña del participante):
+# FTP_LOGIN: FTP/login.sh $FTP_HOST $FTP_USER:$FTP_PASS
+# SSH_LOGIN: SSH/login.sh $SSH_HOST $SSH_USER:$SSH_PASS
+# SMTP_AUTH: MAIL/smtp_check.py $SMTP_HOST $SMTP_PORT $SMTP_USER $SMTP_PASS $SMTP_FROM $SMTP_TO --starttls
+# POP3S: MAIL/pop3_check.py $POP3_HOST $POP3_PORT $POP3_USER $POP3_PASS --ssl
