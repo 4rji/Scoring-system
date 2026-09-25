@@ -60,3 +60,11 @@ Humberto:
   HTTPS_URL: "https://172.16.101.82"
   DNS_SERVER: "172.16.101.82"
   DNS_RECORD: "humberto.lab.local"
+Greg:
+  SERVICES: "FTP,WEB,HTTPS,DNS"
+  IP: "172.16.101.80"
+  FTP_HOST: "172.16.101.80"
+  WEB_URL: "http://172.16.101.80"
+  HTTPS_URL: "https://172.16.101.80"
+  DNS_SERVER: "172.16.101.80"
+  DNS_RECORD: "ccdcteam.com"
