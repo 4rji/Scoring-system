@@ -2,3 +2,4 @@
 metroscore/
 .gocache/
 .DS_Store
+*.json
