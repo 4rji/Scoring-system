@@ -1,0 +1,17 @@
+Start,Inject,Duration
+00:01,BCOM05T - Memo Outlining DRP Resource Needs,30
+00:03,DSGN14A - Incident Response Procedure for Web Site Defacement,25
+00:07,EVAL05T - Assess the Vulnerabilities of Internal Devices,30
+00:10,TOOL07T - Perimeter Firewall Setup,22
+00:18,DSGN15A - Preserve Network Integrity in Peak Loads,30
+00:25,TOOL11T - Examine Address Translation Sessions on Firewall,44
+00:30,WINS05T - Script to Monitor Disk Space,24
+00:40,LEGP09A- Response to Breach,40
+00:35,LINX10T - Develop Script to Monitor for Incomplete TCP Connections,30
+00:34,NETW12A - Verify Default Gateway,30
+00:40,TOOL12T - Configure SSL Decryption on PA Firewall,50
+00:45,ORGR01T - Memo Analyzing Skills in Context of Needs,30
+00:50,ORGE04T - Write a Job Description for HR,30
+01:00,EVAL02T - Evaluate Exposed Services of Each Server with NMAP,30
+01:00,SVRA01T - Configure Network Defensive Features,30
+01:01,END ,30

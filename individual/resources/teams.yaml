@@ -1,0 +1,31 @@
+# Participantes del scoreboard individual.
+#
+# Cada bloque es un participante (estudiante). Todas las variables se pasan
+# como entorno a los checkers de services.yaml.
+#
+# Variables especiales:
+#   SERVICES       Servicios que se le verifican a este participante, separados
+#                  por coma o espacio. Deben coincidir con los nombres de
+#                  services.yaml. Si se omite, se le verifican TODOS.
+#   IP             (opcional) IP que se muestra y se hace ping en "Host reachability".
+#   TEAM_PASSWORD  (opcional) Contraseña para entrar a su página de injects.
+#
+# Las IPs y credenciales de abajo son de ejemplo: reemplázalas por las reales
+# en tu copia local y no las subas al repo.
+Connor:
+  SERVICES: "AD,DNS,FTP,WEB"
+  IP: "10.0.10.10"
+  AD_HOST: "10.0.10.10"
+  DNS_SERVER: "10.0.10.10"
+  DNS_RECORD: "connor.lab.local"
+  FTP_HOST: "10.0.10.11"
+  FTP_USER: "replace_me_user"
+  FTP_PASS: "replace_me_pass"
+  WEB_URL: "http://10.0.10.12"
+Maria:
+  SERVICES: "DNS,WEB,SSH"
+  IP: "10.0.20.10"
+  DNS_SERVER: "10.0.20.10"
+  DNS_RECORD: "maria.lab.local"
+  WEB_URL: "https://10.0.20.10"
+  SSH_HOST: "10.0.20.10"

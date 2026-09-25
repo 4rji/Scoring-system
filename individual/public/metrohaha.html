@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Inject Schedule</title>
+    <link rel="stylesheet" href="/assets/index.20324306.css">
+  </head>
+  <body class="bg-slate-100 dark:bg-zinc-900 dark:text-zinc-100">
+    <div class="w-screen flex justify-center content-center">
+      <div class="h-full w-full">
+        <div class="px-10 my-2">
+          <div class="my-5 bg-slate-50 dark:bg-zinc-800 p-2 rounded-xl shadow-md dark:border border-zinc-700">
+            <table class="table-auto w-full" id="inject-table">
+              <thead>
+                <tr class="text-left">
+                  <th class="p-2">Start</th>
+                  <th class="p-2">End</th>
+                  <th class="p-2">Inject</th>
+                  <th class="p-2">Duration</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script>
+      (function () {
+        const table = document.getElementById("inject-table");
+        if (!table) return;
+
+        const formatClock = (minutes) => {
+          const hours = Math.floor(minutes / 60);
+          const mins = minutes % 60;
+          return `${hours.toString().padStart(2, "0")}:${mins
+            .toString()
+            .padStart(2, "0")}`;
+        };
+
+        const buildRows = (injects) => {
+          const tbody = table.querySelector("tbody");
+          tbody.innerHTML = "";
+          if (!injects.length) {
+            const row = document.createElement("tr");
+            const cell = document.createElement("td");
+            cell.className = "p-2 text-center";
+            cell.colSpan = 4;
+            cell.textContent = "No injects configured.";
+            row.appendChild(cell);
+            tbody.appendChild(row);
+            return;
+          }
+          injects
+            .map((inject) => {
+              const start = Number(inject.start || 0);
+              const duration = Number(inject.duration || 0);
+              const end = start + duration;
+              return {
+                start: formatClock(start),
+                end: formatClock(end),
+                inject: inject.name,
+                duration,
+              };
+            })
+            .sort((a, b) => a.start.localeCompare(b.start))
+            .forEach((item) => {
+              const row = document.createElement("tr");
+              row.className = "border-t dark:border-zinc-700";
+              [item.start, item.end, item.inject, String(item.duration)].forEach(
+                (value, index) => {
+                  const td = document.createElement("td");
+                  td.className = index === 2 ? "p-2 font-medium" : "p-2";
+                  td.textContent = value;
+                  row.appendChild(td);
+                }
+              );
+              tbody.appendChild(row);
+            });
+        };
+
+        window.addEventListener("DOMContentLoaded", async () => {
+          try {
+            const res = await fetch("/api/competition/injects", {
+              credentials: "include",
+            });
+            if (res.ok) {
+              const injects = await res.json();
+              buildRows(Array.isArray(injects) ? injects : []);
+            }
+          } catch (e) {
+            console.error("inject schedule fetch failed", e);
+          }
+        });
+      })();
+    </script>
+  </body>
+</html>

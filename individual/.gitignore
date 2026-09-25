@@ -1,0 +1,26 @@
+/target
+/Client/node_modules
+/Client/dist
+/Client/*.lock
+/Client/.vite
+/Client/.eslintcache
+/Client/npm-debug.log*
+/Client/yarn-debug.log*
+/Client/yarn-error.log*
+.env
+.env.*
+!.env.example
+node_modules
+*.log
+*.tmp
+*.swp
+.DS_Store
+.vscode
+.idea
+resources/save/
+
+# The repo root ignores *.json; keep the client's manifests tracked.
+!Client/package.json
+!Client/package-lock.json
+!Client/tsconfig.json
+!Client/tsconfig.node.json

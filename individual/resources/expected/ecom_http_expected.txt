@@ -1,0 +1,1 @@
+Replace this file with the exact expected HTTP response body for the ecom service.

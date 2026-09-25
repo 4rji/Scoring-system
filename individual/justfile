@@ -1,0 +1,5 @@
+default: buildspa
+buildspa:
+    cd ./Client && npm run build
+    rm -rf ./public/assets ./public/index.html
+    cp -r ./Client/dist/* ./public/

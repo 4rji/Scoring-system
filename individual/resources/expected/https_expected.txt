@@ -1,0 +1,1 @@
+Replace this file with the exact expected HTTPS response body for your target service.

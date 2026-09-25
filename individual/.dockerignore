@@ -1,0 +1,14 @@
+.git
+target/
+Client/node_modules/
+Client/dist/
+public/
+resources/save/
+**/*.log
+**/*.tmp
+.env
+.env.*
+!.env.example
+.DS_Store
+.vscode
+.idea

@@ -2,7 +2,7 @@
 
 ## Project Structure & Module Organization
 
-This repository contains two related scoring systems. The root Go service is in `main.go`, with the polling aggregator in `cmd/reader/`, configuration examples in `config.json` and `sys.conf`, and helper logic in `service_checks.py`. The `metrosco/` directory contains the Metro CCDC scoreboard: Rust backend code in `metrosco/src/`, React/TypeScript client code in `metrosco/Client/src/`, built web assets in `metrosco/public/`, and checker scripts plus sample game data in `metrosco/resources/`.
+This repository contains two related scoring systems. The root Go service is in `main.go`, with the polling aggregator in `cmd/reader/`, configuration examples in `config.json` and `sys.conf`, and helper logic in `service_checks.py`. The `metrosco/` directory contains the Metro CCDC scoreboard: Rust backend code in `metrosco/src/`, React/TypeScript client code in `metrosco/Client/src/`, built web assets in `metrosco/public/`, and checker scripts plus sample game data in `metrosco/resources/`. The `individual/` directory is a standalone copy of the scoreboard that scores individual participants: each entry in `individual/resources/teams.yaml` lists its own services through the `SERVICES` variable.
 
 ## Build, Test, and Development Commands
 
@@ -14,6 +14,7 @@ This repository contains two related scoring systems. The root Go service is in 
 - `cd metrosco/Client && npm run dev` starts the Vite development server.
 - `cd metrosco/Client && npm run build` runs TypeScript checking and builds the React app.
 - `cd metrosco && just buildspa` builds the client and replaces `metrosco/public/` with the generated SPA.
+- `cd individual && cargo run -r` runs the individual scoreboard on `http://localhost:8001`; `cargo test`, `npm run build` and `just buildspa` work the same way inside `individual/`.
 
 ## Coding Style & Naming Conventions
 
