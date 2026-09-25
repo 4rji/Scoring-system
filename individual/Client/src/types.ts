@@ -20,6 +20,8 @@ export interface ReachabilityStatus {
     ip: string,
     method: string,
     reachable: boolean,
+    open_ports: number[],
+    extra_ports: number[],
 }
 
 export interface CompetitionStatus {

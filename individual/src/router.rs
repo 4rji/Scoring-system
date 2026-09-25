@@ -7,7 +7,10 @@ use axum::{
 use serde::{Deserialize, Serialize};
 use tokio::{process::Command, task::JoinSet, time::timeout};
 
-use crate::{auth::{Auth, TeamCredentials}, checker::ScoreboardInfo};
+use crate::{
+    auth::{Auth, TeamCredentials},
+    checker::{exposure, ScoreboardInfo},
+};
 
 use axum_login::{
     tower_sessions::{MemoryStore, SessionManagerLayer},
@@ -15,7 +18,12 @@ use axum_login::{
 };
 
 use crate::ConfigState;
-use std::time::{Duration, SystemTime, UNIX_EPOCH};
+use std::{
+    collections::HashMap,
+    sync::OnceLock,
+    time::{Duration, Instant, SystemTime, UNIX_EPOCH},
+};
+use tokio::sync::Mutex;
 
 pub type AuthSession = axum_login::AuthSession<Auth>;
 
@@ -77,6 +85,10 @@ struct ReachabilityStatus {
     ip: String,
     method: String,
     reachable: bool,
+    /// Open TCP ports found by the scan.
+    open_ports: Vec<u16>,
+    /// Open ports that none of the participant's services need.
+    extra_ports: Vec<u16>,
 }
 
 #[derive(Serialize)]
@@ -200,10 +212,34 @@ async fn probe_host(ip: &str, _port: u16) -> bool {
     }
 }
 
-/// Pings the `IP` env var of every participant that has one.
+/// How long a port scan of a host is reused before scanning it again.
+const PORT_SCAN_TTL: Duration = Duration::from_secs(30);
+
+fn port_scan_cache() -> &'static Mutex<HashMap<String, (Instant, Vec<u16>)>> {
+    static CACHE: OnceLock<Mutex<HashMap<String, (Instant, Vec<u16>)>>> = OnceLock::new();
+    CACHE.get_or_init(Default::default)
+}
+
+async fn cached_scan(ip: &str, ports: Vec<u16>) -> Vec<u16> {
+    if let Some((at, open)) = port_scan_cache().lock().await.get(ip) {
+        if at.elapsed() < PORT_SCAN_TTL {
+            return open.clone();
+        }
+    }
+    let open = exposure::scan_ports(ip, ports).await;
+    port_scan_cache()
+        .lock()
+        .await
+        .insert(ip.to_string(), (Instant::now(), open.clone()));
+    open
+}
+
+/// Pings the `IP` env var of every participant that has one and scans it for
+/// open ports that their assigned services don't need.
 async fn reachability(State(state): State<ConfigState>) -> Json<Vec<ReachabilityStatus>> {
-    let targets: Vec<(String, String)> = {
+    let targets: Vec<(String, String, Vec<u16>)> = {
         let config = state.read().await;
+        let services: Vec<String> = config.services.iter().map(|s| s.name.clone()).collect();
         config
             .teams
             .iter()
@@ -211,20 +247,36 @@ async fn reachability(State(state): State<ConfigState>) -> Json<Vec<Reachability
                 team.env
                     .iter()
                     .find(|(k, v)| k == "IP" && !v.is_empty())
-                    .map(|(_, ip)| (name.clone(), ip.clone()))
+                    .map(|(_, ip)| {
+                        let expected = exposure::expected_ports(team, &services);
+                        (name.clone(), ip.clone(), expected.into_iter().collect())
+                    })
             })
             .collect()
     };
 
     let mut tasks = JoinSet::new();
-    for (name, ip) in targets {
+    for (name, ip, expected) in targets {
         tasks.spawn(async move {
-            let reachable = probe_host(&ip, 0).await;
+            let mut to_scan: Vec<u16> = exposure::COMMON_PORTS.to_vec();
+            to_scan.extend(&expected);
+            to_scan.sort_unstable();
+            to_scan.dedup();
+            let (pinged, open_ports) =
+                tokio::join!(probe_host(&ip, 0), cached_scan(&ip, to_scan));
+            let extra_ports = open_ports
+                .iter()
+                .copied()
+                .filter(|p| !expected.contains(p))
+                .collect();
             ReachabilityStatus {
                 name,
                 ip,
-                method: "ICMP ping".to_string(),
-                reachable,
+                method: "ICMP ping + TCP port scan".to_string(),
+                // Hosts that drop ICMP still count as online if a port answers.
+                reachable: pinged || !open_ports.is_empty(),
+                open_ports,
+                extra_ports,
             }
         });
     }

@@ -7,7 +7,7 @@ import {
   useScore,
   useStartCompetition,
 } from "../Hooks/CtrlHooks";
-import { ServiceStatus } from "../types";
+import { ReachabilityStatus, ServiceStatus } from "../types";
 import { formatDate } from "../util";
 
 const serviceDescriptions: Record<string, string> = {
@@ -22,12 +22,123 @@ const serviceDescriptions: Record<string, string> = {
   POP3: "TCP 110: POP3 +OK banner",
 };
 
+// 1-2 unexpected open ports is yellow, 3 or more (likely no firewall) is orange.
+const reachabilityColor = (status: ReachabilityStatus) => {
+  if (!status.reachable) return "border-red-700 bg-red-500";
+  if (status.extra_ports.length >= 3) return "border-orange-700 bg-orange-500";
+  if (status.extra_ports.length > 0) return "border-yellow-600 bg-yellow-400";
+  return "border-blue-700 bg-blue-500";
+};
+
+const portNames: Record<number, string> = {
+  21: "FTP",
+  22: "SSH",
+  23: "Telnet",
+  25: "SMTP",
+  53: "DNS",
+  80: "HTTP",
+  88: "Kerberos",
+  110: "POP3",
+  111: "RPCbind",
+  135: "MSRPC",
+  139: "NetBIOS",
+  143: "IMAP",
+  389: "LDAP",
+  443: "HTTPS",
+  445: "SMB",
+  464: "Kpasswd",
+  587: "Submission",
+  636: "LDAPS",
+  993: "IMAPS",
+  995: "POP3S",
+  1433: "MSSQL",
+  2049: "NFS",
+  3268: "Global Catalog",
+  3269: "Global Catalog SSL",
+  3306: "MySQL",
+  3389: "RDP",
+  5357: "WSDAPI",
+  5432: "PostgreSQL",
+  5900: "VNC",
+  5985: "WinRM",
+  5986: "WinRM HTTPS",
+  8000: "HTTP alt",
+  8080: "HTTP alt",
+  8443: "HTTPS alt",
+};
+
+const PortList = ({
+  title,
+  ports,
+  className,
+}: {
+  title: string;
+  ports: number[];
+  className: string;
+}) => (
+  <div>
+    <div className="mb-1 text-xs font-bold uppercase text-zinc-400">
+      {title}
+    </div>
+    <ul className="space-y-0.5 text-sm">
+      {ports.map((port) => (
+        <li className="flex justify-between gap-3" key={port}>
+          <span className={"font-mono font-semibold " + className}>
+            {port}/tcp
+          </span>
+          <span className="text-zinc-300">{portNames[port] ?? ""}</span>
+        </li>
+      ))}
+    </ul>
+  </div>
+);
+
+const PortPopover = ({ status }: { status: ReachabilityStatus }) => {
+  const expected = status.open_ports.filter(
+    (port) => !status.extra_ports.includes(port)
+  );
+  return (
+    <div
+      className="absolute left-1/2 top-full z-10 mt-2 w-48 -translate-x-1/2 space-y-2 rounded-lg border border-zinc-600 bg-zinc-900 p-3 text-left shadow-xl"
+      onClick={(e) => e.stopPropagation()}
+    >
+      {status.open_ports.length === 0 && (
+        <p className="text-sm text-zinc-400">No open ports found.</p>
+      )}
+      {status.extra_ports.length > 0 && (
+        <PortList
+          title="Unexpected"
+          ports={status.extra_ports}
+          className={
+            status.extra_ports.length >= 3
+              ? "text-orange-400"
+              : "text-yellow-300"
+          }
+        />
+      )}
+      {expected.length > 0 && (
+        <PortList title="Expected" ports={expected} className="text-blue-300" />
+      )}
+      <p className="text-[0.65rem] text-zinc-500">{status.method}</p>
+    </div>
+  );
+};
+
 const panelClass =
   "rounded-xl border border-zinc-700 bg-zinc-800 p-3 shadow-md";
 
 const OnlinePanel = () => {
   const { reachability, reachabilityLoading, reachabilityError } =
     useReachability();
+  const [selected, setSelected] = useState<string | null>(null);
+
+  // Close the port list when clicking anywhere else.
+  useEffect(() => {
+    if (!selected) return;
+    const close = () => setSelected(null);
+    document.addEventListener("click", close);
+    return () => document.removeEventListener("click", close);
+  }, [selected]);
 
   const renderBody = () => {
     if (reachabilityLoading) return <p className="text-center">Loading...</p>;
@@ -42,17 +153,18 @@ const OnlinePanel = () => {
       <div className="flex flex-wrap justify-center gap-x-8 gap-y-3">
         {reachability.map((status) => (
           <div
-            className="flex min-w-[5rem] flex-col items-center"
+            className="relative flex min-w-[5rem] cursor-pointer flex-col items-center"
             key={status.name}
+            onClick={(e) => {
+              e.stopPropagation();
+              setSelected(selected === status.name ? null : status.name);
+            }}
           >
             <div
               className={
                 "flex h-11 w-11 items-center justify-center rounded-full border-4 text-xl font-black text-white shadow-md " +
-                (status.reachable
-                  ? "border-blue-700 bg-blue-500"
-                  : "border-red-700 bg-red-500")
+                reachabilityColor(status)
               }
-              title={status.method}
             >
               &bull;
             </div>
@@ -62,6 +174,19 @@ const OnlinePanel = () => {
             <div className="mt-1 text-xs leading-none text-zinc-100">
               {status.ip}
             </div>
+            {status.reachable && status.extra_ports.length > 0 && (
+              <div
+                className={
+                  "mt-1 text-xs font-semibold leading-none " +
+                  (status.extra_ports.length >= 3
+                    ? "text-orange-400"
+                    : "text-yellow-300")
+                }
+              >
+                +{status.extra_ports.length} Open
+              </div>
+            )}
+            {selected === status.name && <PortPopover status={status} />}
           </div>
         ))}
       </div>
