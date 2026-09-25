@@ -13,13 +13,13 @@
 # Las IPs y credenciales de abajo son de ejemplo: reemplázalas por las reales
 # en tu copia local y no las subas al repo.
 Connor:
-  SERVICES: "AD,DNS,FTP,WEB"
-  IP: "10.0.10.10"
-  AD_HOST: "10.0.10.10"
-  DNS_SERVER: "10.0.10.10"
+  SERVICES: "FTP,WEB,HTTPS,DNS"
+  IP: "172.16.101.154"
+  FTP_HOST: "172.16.101.154"
+  WEB_URL: "http://172.16.101.154"
+  HTTPS_URL: "https://172.16.101.154"
+  DNS_SERVER: "172.16.101.154"
   DNS_RECORD: "connor.lab.local"
-  FTP_HOST: "10.0.10.11"
-  WEB_URL: "http://10.0.10.12"
 Minh:
   SERVICES: "SSH,SMTP,WEB,HTTPS,IMAP"
   IP: "172.16.101.90"
@@ -35,4 +35,20 @@ Nikita:
   WEB_URL: "http://172.16.101.58"
   HTTPS_URL: "https://172.16.101.58"
   DNS_SERVER: "172.16.101.58"
+  DNS_RECORD: "ccdcteam.com"
+Charlie:
+  SERVICES: "SSH,SMTP,WEB,HTTPS,IMAP"
+  IP: "172.16.101.63"
+  SSH_HOST: "172.16.101.63"
+  SMTP_HOST: "172.16.101.63"
+  IMAP_HOST: "172.16.101.63"
+  WEB_URL: "http://172.16.101.63"
+  HTTPS_URL: "https://172.16.101.63"
+Kevin:
+  SERVICES: "FTP,WEB,HTTPS,DNS"
+  IP: "172.16.101.85"
+  FTP_HOST: "172.16.101.85"
+  WEB_URL: "http://172.16.101.85"
+  HTTPS_URL: "https://172.16.101.85"
+  DNS_SERVER: "172.16.101.85"
   DNS_RECORD: "ccdcteam.com"
