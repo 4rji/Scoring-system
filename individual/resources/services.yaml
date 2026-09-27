@@ -10,8 +10,11 @@ FTP: ./banner.sh $FTP_HOST ${FTP_PORT:-21} '^220'
 WEB: WEB/http_up.sh $WEB_URL
 HTTPS: WEB/http_up.sh $HTTPS_URL
 SSH: ./banner.sh $SSH_HOST ${SSH_PORT:-22} '^SSH-'
-SMTP: ./banner.sh $SMTP_HOST ${SMTP_PORT:-25} '^220'
-IMAP: ./banner.sh $IMAP_HOST ${IMAP_PORT:-143} '^\* OK'
+# SMTP/IMAP prueban el correo de verdad (MAIL/mail_check.sh): SMTP entrega un
+# mensaje de prueba a MAIL_USER@MAIL_DOMAIN e IMAP entra con MAIL_USER/MAIL_PASS,
+# busca en INBOX, lee el último mensaje y borra los mensajes de prueba viejos.
+SMTP: MAIL/mail_check.sh smtp "$SMTP_HOST" "${SMTP_PORT:-25}" "${MAIL_FROM:-scoreboard@${MAIL_DOMAIN:-ccdcteam.com}}" "${MAIL_USER:-ana.garcia}@${MAIL_DOMAIN:-ccdcteam.com}"
+IMAP: MAIL/mail_check.sh imap "$IMAP_HOST" "${IMAP_PORT:-143}" "${MAIL_USER:-ana.garcia}" "$MAIL_PASS"
 POP3: ./banner.sh $POP3_HOST ${POP3_PORT:-110} '^\+OK'
 # Versiones con login (necesitan usuario/contraseña del participante):
 # FTP_LOGIN: FTP/login.sh $FTP_HOST $FTP_USER:$FTP_PASS

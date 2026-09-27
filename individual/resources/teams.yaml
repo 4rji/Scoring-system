@@ -9,6 +9,9 @@
 #                  services.yaml. Si se omite, se le verifican TODOS.
 #   IP             (opcional) IP que se muestra y se hace ping en "Host reachability".
 #   TEAM_PASSWORD  (opcional) Contraseña para entrar a su página de injects.
+#   MAIL_PASS      Contraseña de MAIL_USER (por defecto ana.garcia) para el check
+#                  IMAP; está en /root/instservices-mail-users.tsv del servidor.
+#                  MAIL_USER, MAIL_DOMAIN (ccdcteam.com) y MAIL_FROM son opcionales.
 #
 # Las IPs y credenciales de abajo son de ejemplo: reemplázalas por las reales
 # en tu copia local y no las subas al repo.
@@ -20,14 +23,39 @@ Connor:
   HTTPS_URL: "https://172.16.101.154"
   DNS_SERVER: "172.16.101.154"
   DNS_RECORD: "connor.lab.local"
+Yuselmi:
+  SERVICES: "FTP,WEB,HTTPS,DNS"
+  IP: "172.16.101.94"
+  FTP_HOST: "172.16.101.94"
+  WEB_URL: "http://172.16.101.94"
+  HTTPS_URL: "https://172.16.101.94"
+  DNS_SERVER: "172.16.101.94"
+  DNS_RECORD: "yuselmi.lab.local"
 Minh:
   SERVICES: "SSH,SMTP,WEB,HTTPS,IMAP"
   IP: "172.16.101.90"
   SSH_HOST: "172.16.101.90"
   SMTP_HOST: "172.16.101.90"
   IMAP_HOST: "172.16.101.90"
+  MAIL_PASS: "01a486226be761613b33f6d3"
   WEB_URL: "http://172.16.101.90"
   HTTPS_URL: "https://172.16.101.90"
+Nuhbeh:
+  SERVICES: "SSH,SMTP,WEB,HTTPS,IMAP"
+  IP: "172.16.101.95"
+  SSH_HOST: "172.16.101.95"
+  SMTP_HOST: "172.16.101.95"
+  IMAP_HOST: "172.16.101.95"
+  WEB_URL: "http://172.16.101.95"
+  HTTPS_URL: "https://172.16.101.95"
+# Havi:
+#   SERVICES: "SSH,SMTP,WEB,HTTPS,IMAP"
+#   IP: "172.16.101.199"
+#   SSH_HOST: "172.16.101.199"
+#   SMTP_HOST: "172.16.101.199"
+#   IMAP_HOST: "172.16.101.199"
+#   WEB_URL: "http://172.16.101.199"
+#   HTTPS_URL: "https://172.16.101.199"
 Nikita:
   SERVICES: "FTP,WEB,HTTPS,DNS"
   IP: "172.16.101.58"

@@ -15,7 +15,8 @@ There is also a 2 second timeout implemented in the judge. If the checker takes 
 # Scored Services
 The default [`services.yaml`](services.yaml) now focuses on functional checks for the following services:
 - HTTP/HTTPS: `WEB/http_compare.sh <url> <expected_file> [--insecure]` fetches a page and compares it to the expected body (see `expected/`).
-- SMTP: `MAIL/smtp_check.py <server> <port> <user> <pass> <from> <to> [--starttls]` sends a probe email after authenticating.
+- SMTP/IMAP: `MAIL/mail_check.sh smtp <host> <port> <from> <to>` delivers a probe message; `MAIL/mail_check.sh imap <host> <port> <user> <pass>` logs in, searches INBOX, reads the newest message and cleans up old probes.
+- SMTP (auth): `MAIL/smtp_check.py <server> <port> <user> <pass> <from> <to> [--starttls]` sends a probe email after authenticating.
 - POP3: `MAIL/pop3_check.py <server> <port> <user> <pass> [--ssl]` logs in and lists messages.
 - FTP: `FTP/login.sh <host> <user:pass> [path]` authenticates and lists a directory.
 - DNS: `DNS/lookup.sh <record> [server]` resolves a record using `dig` or `nslookup`.

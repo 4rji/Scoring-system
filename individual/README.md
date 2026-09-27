@@ -52,9 +52,9 @@ Inject Schedule
 | `ping` | `iputils-ping` | Panel "Online" |
 | `ldapsearch` | `ldap-utils` | AD |
 | `nc` | `netcat-openbsd` | `port.sh` |
-| `python3` | `python3` | checkers de correo con login |
+| `python3` | `python3` | checkers opcionales `smtp_check.py` / `pop3_check.py` |
 
-SSH, SMTP, IMAP, FTP y POP3 usan `banner.sh`, que solo necesita bash.
+SSH, FTP y POP3 usan `banner.sh`, que solo necesita bash. SMTP e IMAP usan `curl`.
 
 ## Arrancar
 ```bash
@@ -115,8 +115,8 @@ Nikita:
 | WEB | `WEB_URL` (ej. `http://1.2.3.4`) | |
 | HTTPS | `HTTPS_URL` (ej. `https://1.2.3.4`) | |
 | SSH | `SSH_HOST`, `SSH_PORT` | puerto 22 |
-| SMTP | `SMTP_HOST`, `SMTP_PORT` | puerto 25 |
-| IMAP | `IMAP_HOST`, `IMAP_PORT` | puerto 143 |
+| SMTP | `SMTP_HOST`, `SMTP_PORT`, `MAIL_USER`, `MAIL_DOMAIN`, `MAIL_FROM` | puerto 25, `ana.garcia`, `ccdcteam.com`, `scoreboard@MAIL_DOMAIN` |
+| IMAP | `IMAP_HOST`, `IMAP_PORT`, `MAIL_USER`, `MAIL_PASS` | puerto 143, `ana.garcia`; `MAIL_PASS` es obligatoria |
 | POP3 | `POP3_HOST`, `POP3_PORT` | puerto 110 |
 
 Las variables también sirven dentro del texto de los injects (ver [Injects](#injects-injectscsv)).
@@ -137,8 +137,8 @@ FTP: ./banner.sh $FTP_HOST ${FTP_PORT:-21} '^220'
 WEB: WEB/http_up.sh $WEB_URL
 HTTPS: WEB/http_up.sh $HTTPS_URL
 SSH: ./banner.sh $SSH_HOST ${SSH_PORT:-22} '^SSH-'
-SMTP: ./banner.sh $SMTP_HOST ${SMTP_PORT:-25} '^220'
-IMAP: ./banner.sh $IMAP_HOST ${IMAP_PORT:-143} '^\* OK'
+SMTP: MAIL/mail_check.sh smtp "$SMTP_HOST" "${SMTP_PORT:-25}" "${MAIL_FROM:-scoreboard@${MAIL_DOMAIN:-ccdcteam.com}}" "${MAIL_USER:-ana.garcia}@${MAIL_DOMAIN:-ccdcteam.com}"
+IMAP: MAIL/mail_check.sh imap "$IMAP_HOST" "${IMAP_PORT:-143}" "${MAIL_USER:-ana.garcia}" "$MAIL_PASS"
 POP3: ./banner.sh $POP3_HOST ${POP3_PORT:-110} '^\+OK'
 ```
 
@@ -158,6 +158,12 @@ POP3: ./banner.sh $POP3_HOST ${POP3_PORT:-110} '^\+OK'
 Al final del archivo hay versiones **con login** comentadas (`FTP_LOGIN`, `SSH_LOGIN`,
 `SMTP_AUTH`, `POP3S`) para cuando se quiera verificar autenticación real.
 
+Si SMTP o IMAP fallan, el mensaje (visible en admin → Services → probar) dice la causa:
+`SERVICIO CAIDO` (no conecta), `SERVICIO NO RESPONDE` (conecta pero sin saludo),
+`CONTRASENA INCORRECTA` (el servidor rechazó el login), `LOGIN SIN RESPUESTA` (el login no
+contestó a tiempo: casi siempre contraseña incorrecta, porque Dovecot retrasa las respuestas
+tras logins fallidos), `SMTP RECHAZO EL CORREO` o `FALTAN CREDENCIALES`.
+
 ---
 
 ## Qué verifica cada chequeo y cada cuánto
@@ -175,8 +181,8 @@ Al final del archivo hay versiones **con login** comentadas (`FTP_LOGIN`, `SSH_L
 | Servicio | Cómo se verifica | Pasa si… |
 |---|---|---|
 | SSH | TCP al 22, lee la primera línea | empieza con `SSH-` |
-| SMTP | TCP al 25, lee la primera línea | empieza con `220` |
-| IMAP | TCP al 143, lee la primera línea | empieza con `* OK` |
+| SMTP | `curl smtp://` envía un correo de prueba a `MAIL_USER@MAIL_DOMAIN` (sin auth) | el servidor acepta el correo |
+| IMAP | `curl imap://` con `MAIL_USER`/`MAIL_PASS`: `UID SEARCH ALL` en INBOX, lee el último mensaje y borra los de prueba viejos | login, búsqueda y lectura funcionan |
 | FTP | TCP al 21, lee la primera línea | empieza con `220` |
 | POP3 | TCP al 110, lee la primera línea | empieza con `+OK` |
 | WEB / HTTPS | `curl` a la URL (acepta certificados autofirmados) | código HTTP < 500 (200, 301, 403… pasan) |
