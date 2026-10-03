@@ -1,3 +1,5 @@
+![Dashboard](dash.png)
+
 # Metro CCDC Scoreboard — Individual
 
 Scoreboard para medir el **uptime de los servicios de cada participante**. Cada estudiante
